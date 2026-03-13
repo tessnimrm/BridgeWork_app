@@ -1,6 +1,6 @@
-import 'package:careermatch_app/companyProfileSet.dart';
-import 'package:careermatch_app/workerProfileSet.dart';
-import 'package:careermatch_app/background.dart';
+import 'package:BrigdeWork_app/companyProfileSet.dart';
+import 'package:BrigdeWork_app/workerProfileSet.dart';
+import 'package:BrigdeWork_app/background.dart';
 import 'package:flutter/material.dart';
 
 class Choicepage extends StatefulWidget {

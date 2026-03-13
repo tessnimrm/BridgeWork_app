@@ -1,5 +1,5 @@
-import 'package:careermatch_app/bottomBar.dart';
-import 'package:careermatch_app/background.dart';
+import 'package:BrigdeWork_app/bottomBar.dart';
+import 'package:BrigdeWork_app/background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -117,7 +117,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             SizedBox(
-                              width: 350,
+                              width: 340,
                               height: 51,
                               child: GestureDetector(
                                 onTap: _showUploadCVDialog, // هنا

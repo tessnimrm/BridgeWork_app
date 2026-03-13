@@ -14,9 +14,12 @@ class CustomBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
     return Container(
-      height: 70,
-      decoration: BoxDecoration(color: Colors.white),
+      height: 70 + bottomPadding, // إضافة padding السفلي للارتفاع الكلي
+      decoration: const BoxDecoration(color: Colors.white),
+      padding: EdgeInsets.only(bottom: bottomPadding), // padding في الأسفل فقط
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -54,7 +57,6 @@ class CustomBottomBar extends StatelessWidget {
                 color: isSelected ? selectedColor : unselectedColor,
                 size: isLargeIcon ? 28 : 24,
               ),
-
               if (isSelected) ...[
                 const SizedBox(width: 6),
                 Text(

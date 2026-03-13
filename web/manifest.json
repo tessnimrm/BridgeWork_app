@@ -1,6 +1,6 @@
 {
-    "name": "careermatch_app",
-    "short_name": "careermatch_app",
+    "name": "BrigdeWork_app",
+    "short_name": "BrigdeWork_app",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

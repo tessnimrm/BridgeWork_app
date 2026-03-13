@@ -1,4 +1,4 @@
-package com.example.careermatch_app
+package com.example.BrigdeWork_app
 
 import io.flutter.embedding.android.FlutterActivity
 

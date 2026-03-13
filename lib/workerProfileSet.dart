@@ -1,4 +1,4 @@
-import 'package:careermatch_app/profileWorker.dart';
+import 'package:BrigdeWork_app/profileWorker.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'background.dart';

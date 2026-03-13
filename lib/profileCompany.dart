@@ -1,5 +1,5 @@
-import 'package:careermatch_app/bottomBar.dart';
-import 'package:careermatch_app/background.dart';
+import 'package:BrigdeWork_app/bottomBar.dart';
+import 'package:BrigdeWork_app/background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
@@ -212,7 +212,7 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                                   Text(
                                                     "Availability needed",
                                                     style: TextStyle(
-                                                      fontSize: 13,
+                                                      fontSize: 12.5,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -286,7 +286,7 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                               Text(
                                                 "About My Company",
                                                 style: TextStyle(
-                                                  fontSize: 13,
+                                                  fontSize: 12.5,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
