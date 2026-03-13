@@ -28,8 +28,8 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (context) => GradientBackground(child: Choicepage()),
         //'/home': (context) => const HomePage(),
-        '/messages': (context) =>
-            const MessagePage(), // تأكد من اسم الصفحة MessagePage
+        //'/messages': (context) =>
+        //const MessagePage(), // تأكد من اسم الصفحة MessagePage
         //'/profile': (context) => const ProfilePage(),
         '/settings': (context) => const SettingsPage(),
       },
