@@ -1,0 +1,41 @@
+# Flutter
+.dart_tool/
+.packages/
+pubspec.lock
+build/
+**/build/
+*.lock
+*.log
+
+# Android
+android/.gradle/
+android/local.properties
+android/app/build/
+android/captures/
+
+# iOS
+ios/Pods/
+ios/Podfile.lock
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Mac
+macos/Flutter/ephemeral/
+
+# Windows
+windows/flutter/ephemeral/
+
+# Web
+web/index.html
+web/manifest.json
+
+# APK files
+*.apk
+*.aab
+*.so
