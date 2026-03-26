@@ -1,10 +1,10 @@
+import 'package:brigdeWork_app/WorkerScreen/main_pagework.dart';
 import 'package:flutter/material.dart';
 import '../widgets/background.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/categories.dart';
 import '../widgets/cards.dart';
-import '../WorkerScreen/main_pagework.dart';
-/*
+
 class Hire extends StatefulWidget {
   final String name;
   const Hire({super.key, required this.name});
@@ -28,7 +28,7 @@ class _HireState extends State<Hire> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      SizedBox(height: 17),
+                      SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
@@ -42,11 +42,11 @@ class _HireState extends State<Hire> {
                                 " ${widget.name} ",
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 25,
+                                  fontSize: 24,
                                 ),
                               ),
                               Text(
-                                "That's Hire mode",
+                                "That's Work mode",
                                 style: GoogleFonts.inter(
                                   fontWeight: FontWeight.w500,
                                   fontSize: 15,
@@ -65,9 +65,9 @@ class _HireState extends State<Hire> {
                             radius: 30,
                             backgroundColor: const Color.fromARGB(
                               255,
-                              87,
-                              85,
-                              90,
+                              132,
+                              125,
+                              138,
                             ),
                             child: Icon(
                               Icons.person,
@@ -77,10 +77,10 @@ class _HireState extends State<Hire> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 20),
                       Container(
                         height: 48,
-                        width: 340,
+                        width: 320,
                         padding: EdgeInsets.only(top: 6),
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(188, 194, 194, 194),
@@ -104,79 +104,77 @@ class _HireState extends State<Hire> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 16),
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Wrap(
                           spacing: 10,
                           children: <Widget>[
                             SizedBox(width: 10),
-                            Categories(text: "All", icon: Icon(Icons.android)),
                             Categories(
-                              text: "tech and digital",
-                              icon: Icon(Icons.android),
+                              text: "Retail",
+                              imagePath: "lib/images/retail.png",
                             ),
                             Categories(
-                              text: "idk what",
-                              icon: Icon(Icons.android),
+                              text: "Hospitality",
+                              imagePath: "lib/images/hospitality.png",
                             ),
                             Categories(
-                              text: "hello",
-                              icon: Icon(Icons.android),
+                              text: "Tech&Digital",
+                              imagePath: "lib/images/tech.png",
                             ),
                             Categories(
-                              text: "bilama",
-                              icon: Icon(Icons.android),
+                              text: "Education",
+                              imagePath: "lib/images/education.png",
                             ),
                             Categories(
-                              text: "hello",
-                              icon: Icon(Icons.android),
+                              text: "Buisness",
+                              imagePath: "lib/images/buisness.png",
                             ),
                             SizedBox(width: 10),
                           ],
                         ),
                       ),
-                      SizedBox(height: 20),
+                      SizedBox(height: 16),
                       Wrap(
                         runSpacing: 15,
                         children: [
                           Cards(
                             textt: "name",
                             avatar: NetworkImage(
-                              "	https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
+                              "https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
                             ),
-                            place: "cafeteria",
+                            place: "teacher",
                             timing: "morning",
                             flixebility: "flexible",
                           ),
                           Cards(
                             textt: "name",
                             avatar: NetworkImage(
-                              "	https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
+                              "https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
                             ),
-                            place: "cafeteria",
+                            place: "chef",
                             timing: "morning",
                             flixebility: "flexible",
                           ),
                           Cards(
                             textt: "name",
                             avatar: NetworkImage(
-                              "	https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
+                              "https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
                             ),
-                            place: "cafeteria",
+                            place: "waitress",
                             timing: "morning",
                             flixebility: "flexible",
                           ),
                           Cards(
                             textt: "name",
                             avatar: NetworkImage(
-                              "	https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
+                              "https://i.pinimg.com/736x/c1/ec/37/c1ec37f6e663304eecdf8cf0f9b0c116.jpg",
                             ),
-                            place: "cafeteria",
+                            place: "designer",
                             timing: "morning",
                             flixebility: "flexible",
                           ),
-                          SizedBox(height: 27),
                         ],
                       ),
                       SizedBox(height: 50),
@@ -195,7 +193,9 @@ class _HireState extends State<Hire> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const Work()),
+                    MaterialPageRoute(
+                      builder: (context) => const Work(),
+                    ),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -207,7 +207,7 @@ class _HireState extends State<Hire> {
                   elevation: 10,
                 ),
                 child: Text(
-                  "Switch to Work mode",
+                  "Switch to Hire mode",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -219,7 +219,24 @@ class _HireState extends State<Hire> {
           ),
         ],
       ),
-    );
-  }
+      /*bottomNavigationBar: CustomBottomBar(
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 0) {
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/messages');
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, Routes.workerProfile);
+          } else if (index == 3) {
+            Navigator.pushNamed(
+              context,
+              Routes.workerSettings,
+              arguments: {
+                'skills': _skills,
+                'availability': _availability,
+                'bio': _bio,
+              },
+              */
+            );
+          }
 }
-*/

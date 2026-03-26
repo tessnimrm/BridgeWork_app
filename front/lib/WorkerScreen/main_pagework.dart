@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:hexcolor/hexcolor.dart';
-import '../widgets/background.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
+import '../widgets/background.dart';
 import '../widgets/categories.dart';
 import '../widgets/cards.dart';
 import '../CompanyScreen/main_pagehire.dart';
-import 'package:brigdeWork_app/Routes.dart';
-import 'package:brigdeWork_app/WorkerScreen/bottomBarWorker.dart';
-import 'package:provider/provider.dart';
+import '../WorkerScreen/bottomBarWorker.dart';
+import '../Routes.dart';
 import '../providers/WorkerProvider.dart';
-import 'dart:io';
 import '../providers/LikedJobsProvider.dart';
 import '../models/JobModel.dart';
 import '../WorkerScreen/theirProfile.dart';
 
 class Work extends StatefulWidget {
   const Work({super.key});
+
   @override
   State<Work> createState() => _WorkState();
 }
@@ -96,7 +96,7 @@ class _WorkState extends State<Work> {
                         children: <Widget>[
                           const SizedBox(width: 30),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
                                 " Hi $fullName!",
@@ -133,14 +133,15 @@ class _WorkState extends State<Work> {
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 30),
+
                       Container(
                         height: 48,
                         width: 340,
                         padding: const EdgeInsets.only(top: 6),
                         decoration: BoxDecoration(
                           color: const Color.fromRGBO(131, 125, 225, 0.3),
-                          boxShadow: [],
                           borderRadius: BorderRadius.circular(24),
                         ),
                         child: TextField(
@@ -163,41 +164,40 @@ class _WorkState extends State<Work> {
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 20),
+
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Wrap(
                           spacing: 10,
                           children: <Widget>[
                             const SizedBox(width: 10),
-                            const Categories(
-                              text: "All",
-                              icon: Icon(Icons.apps),
+                            Categories(
+                              text: "Retail",
+                              imagePath: "lib/images/retail.png",
                             ),
-                            const Categories(
-                              text: "Tech & Digital",
-                              icon: Icon(Icons.computer),
+                            Categories(
+                              text: "Hospitality",
+                              imagePath: "lib/images/hospitality.png",
                             ),
-                            const Categories(
-                              text: "Food & Kitchen",
-                              icon: Icon(Icons.restaurant),
+                            Categories(
+                              text: "Tech&Digital",
+                              imagePath: "lib/images/tech.png",
                             ),
-                            const Categories(
-                              text: "Delivery",
-                              icon: Icon(Icons.delivery_dining),
-                            ),
-                            const Categories(
-                              text: "Design",
-                              icon: Icon(Icons.design_services),
-                            ),
-                            const Categories(
+                            Categories(
                               text: "Education",
-                              icon: Icon(Icons.school),
+                              imagePath: "lib/images/education.png",
+                            ),
+                            Categories(
+                              text: "Business",
+                              imagePath: "lib/images/business.png",
                             ),
                             const SizedBox(width: 10),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 20),
                       Wrap(
                         runSpacing: 15,
@@ -224,7 +224,7 @@ class _WorkState extends State<Work> {
                                 MaterialPageRoute(
                                   builder: (context) => Theirprofile(
                                     worker: job,
-                                  ), // ✅ تمرير بيانات الكارد
+                                  ),
                                 ),
                               );
                             },
@@ -240,10 +240,12 @@ class _WorkState extends State<Work> {
           ),
         ],
       ),
+
       bottomNavigationBar: CustomBottomBar(
         currentIndex: 0,
         onTap: (index) {
           if (index == 0) {
+            // stay
           } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/messages');
           } else if (index == 2) {

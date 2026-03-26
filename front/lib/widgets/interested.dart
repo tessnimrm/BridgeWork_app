@@ -12,36 +12,34 @@ class _InterestedState extends State<Interested> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: SizedBox(
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          isSelected = !isSelected;
+        });
+      },
+      child: Container(
         width: 100,
         height: 25,
-        child: ElevatedButton(
-          onPressed: () {
-            setState(() {
-              isSelected = !isSelected;
-            });
-          },
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(0, 25),
-            padding: EdgeInsets.zero,
-            backgroundColor: isSelected
-                ? Color.fromARGB(255, 109, 54, 206)
-                : Color(0xFFD9D9D9),
-            elevation: 7,
-            shadowColor: Colors.grey,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: isSelected ? Color.fromARGB(255, 109, 54, 206) : Color(0xFFD9D9D9),
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: const Color.fromARGB(255, 153, 153, 153),
+              blurRadius: 4, // how soft the shadow is
+              spreadRadius: 1, // how much it spreads
+              offset: const Offset(2, 2), // position of shadow
             ),
-          ),
-          child: Text(
-            "interested",
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 10,
-              color: isSelected ? Colors.white : Colors.black,
-            ),
+          ],
+        ),
+        child: Text(
+          "interested",
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 10,
+            color: isSelected ? Colors.white : Colors.black,
           ),
         ),
       ),

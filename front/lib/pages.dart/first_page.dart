@@ -14,21 +14,25 @@ class Realone extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: GradientBackground(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Column(
+          child: SingleChildScrollView(
+            // allows scrolling if content is too tall
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(flex: 2),
+                  const SizedBox(height: 40),
                   const Paragraph(),
-                  const Spacer(flex: 1),
-                  Flexible(
-                    flex: 4,
-                    child: Image.asset(
-                      'lib/images/3022e377fdbaa43092e09875017df8743cf60e4c.png',
-                      fit: BoxFit.contain,
-                    ),
+                  const SizedBox(height: 20),
+                  Image.asset(
+                    'lib/images/3022e377fdbaa43092e09875017df8743cf60e4c.png',
+                    fit: BoxFit.contain,
+                    height:
+                        250, // optional: fix height so layout is predictable
                   ),
-                  const Spacer(flex: 1),
+                  const SizedBox(height: 30),
                   Botton(
                     text: "Create account",
                     textColor: Colors.black,
@@ -56,14 +60,13 @@ class Realone extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const Spacer(flex: 1),
-                  /*
+                  const SizedBox(height: 20),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                           builder: (context) => const Hire(name: "Hello !"),
+                          builder: (context) => const Hire(name: "Hello !"),
                         ),
                       );
                     },
@@ -71,14 +74,14 @@ class Realone extends StatelessWidget {
                       'Continue as a guest',
                       style: GoogleFonts.inter(
                         color: const Color.fromARGB(255, 114, 120, 134),
+                        fontSize: 14,
                       ),
                     ),
                   ),
-                  const Spacer(flex: 2),
-                  */
+                  const SizedBox(height: 40),
                 ],
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),
