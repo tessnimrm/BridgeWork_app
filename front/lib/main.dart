@@ -9,20 +9,26 @@ import 'package:brigdeWork_app/Routes.dart';
 import 'package:brigdeWork_app/pages.dart/first_page.dart';
 import 'package:brigdeWork_app/WorkerScreen/main_pagework.dart';
 import 'package:provider/provider.dart';
+import 'package:brigdeWork_app/providers/WorkerProvider.dart';
+import 'package:brigdeWork_app/providers/LikedJobsProvider.dart';
+import '../providers/RequestProvider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => WorkerProvider()),
+        ChangeNotifierProvider(create: (_) => LikedJobsProvider()),
+        ChangeNotifierProvider(create: (_) => RequestsProvider()),
+      ],
+
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -30,31 +36,43 @@ class _MyAppState extends State<MyApp> {
       title: 'BridgeWork',
       debugShowCheckedModeBanner: false,
       initialRoute: '/firstPage',
-      routes: {Routes.choicepage: (context) => Choicepage()},
+      routes: {Routes.choicepage: (context) => const Choicepage()},
       onGenerateRoute: (settings) {
         if (settings.name == '/firstPage') {
           return MaterialPageRoute(builder: (context) => const Realone());
         }
         // صفحات العامل
         else if (settings.name == Routes.workerProfile) {
-          return MaterialPageRoute(builder: (context) => ProfileWorker());
+          return MaterialPageRoute(builder: (context) => const ProfileWorker());
         } else if (settings.name == Routes.workerSettings) {
-          return MaterialPageRoute(builder: (context) => WorkerSettingsPage());
+          return MaterialPageRoute(
+            builder: (context) => const WorkerSettingsPage(),
+          );
         } else if (settings.name == Routes.workerEditProfile) {
-          return MaterialPageRoute(builder: (context) => EditProfileWorker());
+          return MaterialPageRoute(
+            builder: (context) => const EditProfileWorker(),
+          );
         } else if (settings.name == Routes.Work) {
           final args = settings.arguments as Map?;
-          return MaterialPageRoute(
-            builder: (context) => Work(name: args?['name'] ?? 'User'),
-          );
+          return MaterialPageRoute(builder: (context) => Work());
         }
         // صفحات الشركة
         else if (settings.name == Routes.companyProfile) {
-          return MaterialPageRoute(builder: (context) => ProfileCompany());
+          return MaterialPageRoute(
+            builder: (context) => const ProfileCompany(),
+          );
         } else if (settings.name == Routes.companySettings) {
-          // return MaterialPageRoute(builder: (context) => CompanySettingsPage());
+          return MaterialPageRoute(
+            builder: (context) => const Scaffold(
+              body: Center(child: Text('Company Settings Page')),
+            ),
+          );
         } else if (settings.name == Routes.companyEditProfile) {
-          // return MaterialPageRoute(builder: (context) => EditProfileCompany());
+          return MaterialPageRoute(
+            builder: (context) => const Scaffold(
+              body: Center(child: Text('Edit Company Profile Page')),
+            ),
+          );
         }
         return null;
       },

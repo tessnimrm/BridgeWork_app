@@ -1,58 +1,34 @@
-import 'package:brigdeWork_app/WorkerScreen/Workersettings.dart';
-import 'package:brigdeWork_app/WorkerScreen/bottomBarWorker.dart';
-import 'package:brigdeWork_app/WorkerScreen/editWorkerProfile.dart';
-import 'package:brigdeWork_app/background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:brigdeWork_app/Routes.dart';
-import 'package:brigdeWork_app/providers/WorkerProvider.dart';
+import '../background.dart';
+import '../models/JobModel.dart';
 import 'package:provider/provider.dart';
-import 'package:brigdeWork_app/WorkerScreen/workerProfileSet.dart';
-import 'dart:io';
+import '../providers/RequestProvider.dart';
+import '../models/RequestModel.dart';
+import 'bottomBarWorker.dart';
+import 'package:brigdeWork_app/Routes.dart';
 
-class ProfileWorker extends StatefulWidget {
-  const ProfileWorker({super.key});
+class Theirprofile extends StatefulWidget {
+  final JobModel worker;
+  const Theirprofile({super.key, required this.worker});
 
   @override
-  State<ProfileWorker> createState() => _ProfileWorkerState();
+  State<Theirprofile> createState() => _TheirprofileState();
 }
 
-class _ProfileWorkerState extends State<ProfileWorker> {
+class _TheirprofileState extends State<Theirprofile> {
   bool isEducationVisible = false;
   bool isExperienceVisible = false;
   bool isProjectsVisible = false;
 
   @override
   Widget build(BuildContext context) {
-    final workerProvider = Provider.of<WorkerProvider>(context);
-    final data = workerProvider.workerData;
-
-    if (data == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const WorkerProfileSet()),
-        );
-      });
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    final coverImage = data.coverImagePath.isNotEmpty
-        ? FileImage(File(data.coverImagePath))
-        : const AssetImage('lib/images/photo_1.jpg') as ImageProvider;
-    final profileImage = data.profileImagePath.isNotEmpty
-        ? FileImage(File(data.profileImagePath))
-        : const AssetImage('lib/images/photo_2.jpg') as ImageProvider;
-
-    final allSkills = {...data.selectedWork, ...data.customSkills}.toList();
-
-    final allLanguages = {
-      ...data.selectedLanguages,
-      ...data.customLanguages,
-    }.toList();
+    final requestsProvider = Provider.of<RequestsProvider>(context);
+    final worker = widget.worker;
+    final profileUserId = worker.title;
+    final requestStatus = requestsProvider.getRequestStatus(profileUserId);
 
     return Scaffold(
-      //backgroundColor: Colors.transparent,
       body: SafeArea(
         child: GradientBackground(
           child: SingleChildScrollView(
@@ -60,7 +36,6 @@ class _ProfileWorkerState extends State<ProfileWorker> {
               children: [
                 Container(
                   width: double.infinity,
-                  //padding: const EdgeInsets.only(top: 23),
                   child: Column(
                     children: [
                       Stack(
@@ -71,7 +46,9 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                             height: 152,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: coverImage,
+                                image: const AssetImage(
+                                  'lib/images/photo_1.jpg',
+                                ),
                                 fit: BoxFit.cover,
                               ),
                               borderRadius: BorderRadius.circular(20),
@@ -87,7 +64,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                 height: 100,
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                    image: profileImage,
+                                    image: NetworkImage(worker.imageUrl),
                                     fit: BoxFit.cover,
                                   ),
                                   borderRadius: BorderRadius.circular(100),
@@ -107,19 +84,107 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                         child: Column(
                           children: [
                             Text(
-                              data.fullName.isNotEmpty
-                                  ? data.fullName
-                                  : 'YOUR NAME',
+                              worker.title,
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             Text(
-                              'UI/UX Designer',
+                              worker.place,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: HexColor("#837DE1"),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Center(
+                                    child: Text(
+                                      "CV",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (requestStatus == 'none') {
+                                    final request = RequestModel(
+                                      id: profileUserId,
+                                      jobTitle: worker.place,
+                                      workerName: worker.title,
+                                      workerImage: worker.imageUrl,
+                                      status: 'pending',
+                                      date: DateTime.now(),
+                                    );
+                                    requestsProvider.receiveRequest(request);
+                                    setState(() {});
+                                  } else if (requestStatus == 'accepted') {
+                                    Navigator.pushNamed(context, '/chat');
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: requestStatus == 'none'
+                                        ? HexColor("#F9FAFB")
+                                        : HexColor("#837DE1"),
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      requestStatus == 'accepted'
+                                          ? "Message"
+                                          : requestStatus == 'pending'
+                                          ? "Request Sent"
+                                          : "Interested",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -164,45 +229,56 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                                 ],
                                               ),
                                               const SizedBox(height: 8),
-                                              if (allSkills.isNotEmpty)
-                                                Wrap(
-                                                  spacing: 8,
-                                                  runSpacing: 8,
-                                                  children: allSkills.map((
-                                                    skill,
-                                                  ) {
-                                                    return Container(
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 6,
+                                              Wrap(
+                                                spacing: 8,
+                                                runSpacing: 8,
+                                                children: [
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 6,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: HexColor(
+                                                        "#D9D9D9",
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            20,
                                                           ),
-                                                      decoration: BoxDecoration(
-                                                        color: HexColor(
-                                                          "#D9D9D9",
-                                                        ),
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              20,
-                                                            ),
+                                                    ),
+                                                    child: const Text(
+                                                      "Flutter",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
                                                       ),
-                                                      child: Text(
-                                                        skill,
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                        ),
-                                                      ),
-                                                    );
-                                                  }).toList(),
-                                                )
-                                              else
-                                                const Text(
-                                                  "No skills added",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
+                                                    ),
                                                   ),
-                                                ),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 12,
+                                                          vertical: 6,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: HexColor(
+                                                        "#D9D9D9",
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            20,
+                                                          ),
+                                                    ),
+                                                    child: const Text(
+                                                      "UI/UX",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -243,10 +319,8 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                               const SizedBox(height: 8),
                                               Wrap(
                                                 spacing: 4,
-                                                children: data.selectedAvailability.map((
-                                                  availability,
-                                                ) {
-                                                  return Container(
+                                                children: [
+                                                  Container(
                                                     padding:
                                                         const EdgeInsets.symmetric(
                                                           horizontal: 8,
@@ -266,13 +340,39 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                                           ),
                                                     ),
                                                     child: Text(
-                                                      availability,
+                                                      worker.timing,
                                                       style: const TextStyle(
                                                         fontSize: 10,
                                                       ),
                                                     ),
-                                                  );
-                                                }).toList(),
+                                                  ),
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 8,
+                                                          vertical: 4,
+                                                        ),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                          bottom: 4,
+                                                        ),
+                                                    decoration: BoxDecoration(
+                                                      color: HexColor(
+                                                        "#D9D9D9",
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            20,
+                                                          ),
+                                                    ),
+                                                    child: Text(
+                                                      worker.flexibility,
+                                                      style: const TextStyle(
+                                                        fontSize: 10,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
@@ -315,9 +415,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                           ),
                                           const SizedBox(height: 10),
                                           Text(
-                                            data.bio.isEmpty
-                                                ? "No bio added"
-                                                : data.bio,
+                                            "Experienced ${worker.place} with 5+ years in the field",
                                             style: const TextStyle(
                                               fontSize: 12,
                                               height: 1.4,
@@ -347,7 +445,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                 });
                               },
                             ),
-                            if (isEducationVisible && data.education.isNotEmpty)
+                            if (isEducationVisible)
                               Container(
                                 margin: const EdgeInsets.only(top: 8),
                                 width: double.infinity,
@@ -356,11 +454,11 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(16),
                                     child: Text(
-                                      data.education,
-                                      style: const TextStyle(
+                                      "Bachelor's in Computer Science",
+                                      style: TextStyle(
                                         fontSize: 14,
                                         height: 1.5,
                                       ),
@@ -378,8 +476,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                 });
                               },
                             ),
-                            if (isExperienceVisible &&
-                                data.experience.isNotEmpty)
+                            if (isExperienceVisible)
                               Container(
                                 margin: const EdgeInsets.only(top: 8),
                                 width: double.infinity,
@@ -391,7 +488,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
                                     child: Text(
-                                      data.experience,
+                                      "5 years as ${worker.place}",
                                       style: const TextStyle(
                                         fontSize: 14,
                                         height: 1.5,
@@ -410,7 +507,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                 });
                               },
                             ),
-                            if (isProjectsVisible && data.projects.isNotEmpty)
+                            if (isProjectsVisible)
                               Container(
                                 margin: const EdgeInsets.only(top: 8),
                                 width: double.infinity,
@@ -419,11 +516,11 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(16),
                                     child: Text(
-                                      data.projects,
-                                      style: const TextStyle(
+                                      "E-commerce App, Portfolio Website",
+                                      style: TextStyle(
                                         fontSize: 14,
                                         height: 1.5,
                                       ),
@@ -444,13 +541,13 @@ class _ProfileWorkerState extends State<ProfileWorker> {
         ),
       ),
       bottomNavigationBar: CustomBottomBar(
-        currentIndex: 2,
+        currentIndex: 0,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, Routes.Work);
           } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/messages');
           } else if (index == 2) {
+            Navigator.pushNamed(context, Routes.workerProfile);
           } else if (index == 3) {
             Navigator.pushNamed(context, Routes.workerSettings);
           }

@@ -6,13 +6,9 @@ import 'login_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../CompanyScreen/main_pagehire.dart';
 
-class Realone extends StatefulWidget {
+class Realone extends StatelessWidget {
   const Realone({super.key});
-  @override
-  State<Realone> createState() => _RealoneState();
-}
 
-class _RealoneState extends State<Realone> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,15 +18,9 @@ class _RealoneState extends State<Realone> {
             builder: (context, constraints) {
               return Column(
                 children: [
-                  // ✅ المساحة العلوية بتتوزع بشكل ذكي
                   const Spacer(flex: 2),
-
-                  // ✅ النصوص (Work today, Hire tomorrow)
                   const Paragraph(),
-
                   const Spacer(flex: 1),
-
-                  // ✅ الصورة (بتاخد مساحة مناسبة بدون ما تطغى)
                   Flexible(
                     flex: 4,
                     child: Image.asset(
@@ -38,10 +28,7 @@ class _RealoneState extends State<Realone> {
                       fit: BoxFit.contain,
                     ),
                   ),
-
                   const Spacer(flex: 1),
-
-                  // ✅ الأزرار والنصوص السفلية
                   Botton(
                     text: "Create account",
                     textColor: Colors.black,
@@ -52,9 +39,7 @@ class _RealoneState extends State<Realone> {
                       );
                     },
                   ),
-
                   const SizedBox(height: 10),
-
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -71,15 +56,14 @@ class _RealoneState extends State<Realone> {
                       ),
                     ),
                   ),
-
                   const Spacer(flex: 1),
-
+                  /*
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Hire(name: "Hello !"),
+                           builder: (context) => const Hire(name: "Hello !"),
                         ),
                       );
                     },
@@ -90,8 +74,8 @@ class _RealoneState extends State<Realone> {
                       ),
                     ),
                   ),
-
-                  const Spacer(flex: 2), // ✅ مساحة سفليّة تلقائية
+                  const Spacer(flex: 2),
+                  */
                 ],
               );
             },

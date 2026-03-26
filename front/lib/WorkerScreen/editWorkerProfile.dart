@@ -6,32 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:brigdeWork_app/Routes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:brigdeWork_app/models/WorkerModel.dart';
 import 'package:provider/provider.dart';
+import 'package:brigdeWork_app/providers/WorkerProvider.dart';
 
 class EditProfileWorker extends StatefulWidget {
-  final List<String> selectedWork;
-  final List<String> selectedAvailability;
-  final List<String> selectedLanguages;
-  final List<String> customSkills;
-  final List<String> customLanguages;
-  final String bio;
-  final String education;
-  final String experience;
-  final String projects;
-
-  const EditProfileWorker({
-    super.key,
-    this.selectedWork = const [],
-    this.selectedAvailability = const [],
-    this.selectedLanguages = const [],
-    this.customSkills = const [],
-    this.customLanguages = const [],
-    this.bio = '',
-    this.education = '',
-    this.experience = '',
-    this.projects = '',
-  });
+  const EditProfileWorker({super.key});
 
   @override
   State<EditProfileWorker> createState() => _EditProfileWorkerState();
@@ -44,6 +23,9 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
   Set<String> selectedWork = {};
   Set<String> selectedAvailability = {};
   Set<String> selectedLanguage = {};
+  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _educationController = TextEditingController();
   final TextEditingController _experienceController = TextEditingController();
@@ -67,15 +49,83 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
   @override
   void initState() {
     super.initState();
-    selectedWork = widget.selectedWork.toSet();
-    selectedAvailability = widget.selectedAvailability.toSet();
-    selectedLanguage = widget.selectedLanguages.toSet();
-    _bioController.text = widget.bio;
-    _educationController.text = widget.education;
-    _experienceController.text = widget.experience;
-    _projectsController.text = widget.projects;
-    customSkills = List.from(widget.customSkills);
-    customLanguages = List.from(widget.customLanguages);
+
+    final workerProvider = Provider.of<WorkerProvider>(context, listen: false);
+    final currentData = workerProvider.workerData;
+
+    if (currentData != null) {
+      selectedWork = currentData.selectedWork.toSet();
+      selectedAvailability = currentData.selectedAvailability.toSet();
+      selectedLanguage = currentData.selectedLanguages.toSet();
+      customSkills = List.from(currentData.customSkills);
+      customLanguages = List.from(currentData.customLanguages);
+      _fullNameController.text = currentData.fullName;
+      _emailController.text = currentData.email;
+      _phoneController.text = currentData.phone;
+      _bioController.text = currentData.bio;
+      _educationController.text = currentData.education;
+      _experienceController.text = currentData.experience;
+      _projectsController.text = currentData.projects;
+    }
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _bioController.dispose();
+    _educationController.dispose();
+    _experienceController.dispose();
+    _projectsController.dispose();
+    super.dispose();
+  }
+
+  bool _validateInputs() {
+    if (_fullNameController.text.trim().isEmpty) {
+      _showError('Please enter your full name');
+      return false;
+    }
+
+    if (_emailController.text.trim().isEmpty) {
+      _showError('Please enter your email');
+      return false;
+    }
+
+    if (!_isValidEmail(_emailController.text.trim())) {
+      _showError('Please enter a valid email address');
+      return false;
+    }
+
+    if (selectedWork.isEmpty && customSkills.isEmpty) {
+      _showError('Please add at least one skill');
+      return false;
+    }
+
+    if (selectedAvailability.isEmpty) {
+      _showError('Please select at least one availability option');
+      return false;
+    }
+
+    return true;
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(10),
+      ),
+    );
   }
 
   Future<void> _pickImage(ImageSource source, bool isCover) async {
@@ -180,7 +230,6 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-
                             Positioned(
                               bottom: 10,
                               right: 10,
@@ -252,10 +301,11 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
 
-                        Align(
+                        // Full name field
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "Full name",
                               style: TextStyle(fontSize: 16),
@@ -272,6 +322,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
+                              controller: _fullNameController,
                               decoration: InputDecoration(
                                 hintText: 'Your full name',
                                 hintStyle: TextStyle(
@@ -288,10 +339,12 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Align(
+
+                        // Email field
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "Email",
                               style: TextStyle(fontSize: 16),
@@ -308,6 +361,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
+                              controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(
                                 hintText: 'xxxxxxx@gmail.com',
@@ -325,10 +379,12 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Align(
+
+                        // Phone number field
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "Phone number",
                               style: TextStyle(fontSize: 16),
@@ -345,6 +401,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
+                              controller: _phoneController,
                               keyboardType: TextInputType.phone,
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly,
@@ -365,6 +422,8 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
+
+                        // Skills and Availability row
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: IntrinsicHeight(
@@ -410,9 +469,10 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                                     spacing: 8,
                                                     runSpacing: 8,
                                                     children: [
-                                                      ...widget.selectedWork.map((
-                                                        skill,
-                                                      ) {
+                                                      ...{
+                                                        ...selectedWork,
+                                                        ...customSkills,
+                                                      }.map((skill) {
                                                         return Container(
                                                           padding:
                                                               const EdgeInsets.symmetric(
@@ -433,33 +493,8 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                                             style:
                                                                 const TextStyle(
                                                                   fontSize: 12,
-                                                                ),
-                                                          ),
-                                                        );
-                                                      }).toList(),
-                                                      ...customSkills.map((
-                                                        skill,
-                                                      ) {
-                                                        return Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 12,
-                                                                vertical: 6,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            color: HexColor(
-                                                              "#D9D9D9",
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  20,
-                                                                ),
-                                                          ),
-                                                          child: Text(
-                                                            skill,
-                                                            style:
-                                                                const TextStyle(
-                                                                  fontSize: 12,
+                                                                  color: Colors
+                                                                      .black,
                                                                 ),
                                                           ),
                                                         );
@@ -649,10 +684,12 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                             ),
                           ),
                         ),
-                        Align(
+
+                        // About me
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "About me",
                               style: TextStyle(fontSize: 16),
@@ -688,10 +725,12 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Align(
+
+                        // Education
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "Education",
                               style: TextStyle(fontSize: 16),
@@ -727,10 +766,12 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Align(
+
+                        // Experience
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "Experience",
                               style: TextStyle(fontSize: 16),
@@ -766,10 +807,12 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Align(
+
+                        // Projects
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 24),
+                            padding: EdgeInsets.only(left: 24),
                             child: Text(
                               "Projects",
                               style: TextStyle(fontSize: 16),
@@ -805,6 +848,8 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
                         const SizedBox(height: 15),
+
+                        // Save button
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
@@ -815,19 +860,52 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  Navigator.pop(context, {
-                                    'selectedWork': selectedWork.toList(),
-                                    'selectedAvailability': selectedAvailability
-                                        .toList(),
-                                    'selectedLanguages': selectedLanguage
-                                        .toList(),
-                                    'customSkills': customSkills,
-                                    'customLanguages': customLanguages,
-                                    'bio': _bioController.text,
-                                    'education': _educationController.text,
-                                    'experience': _experienceController.text,
-                                    'projects': _projectsController.text,
-                                  });
+                                  if (_validateInputs()) {
+                                    final workerProvider =
+                                        Provider.of<WorkerProvider>(
+                                          context,
+                                          listen: false,
+                                        );
+
+                                    workerProvider.updateWorkerData(
+                                      selectedWork: selectedWork.toList(),
+                                      selectedAvailability: selectedAvailability
+                                          .toList(),
+                                      selectedLanguages: selectedLanguage
+                                          .toList(),
+                                      customSkills: customSkills,
+                                      customLanguages: customLanguages,
+                                      fullName: _fullNameController.text.trim(),
+                                      email: _emailController.text.trim(),
+                                      phone: _phoneController.text.trim(),
+                                      bio: _bioController.text,
+                                      education: _educationController.text,
+                                      experience: _experienceController.text,
+                                      projects: _projectsController.text,
+                                      coverImagePath: _coverImage?.path ?? '',
+                                      profileImagePath:
+                                          _profileImage?.path ?? '',
+                                    );
+
+                                    Navigator.pop(context);
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Profile updated successfully!',
+                                        ),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(10),
+                                          ),
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                        margin: EdgeInsets.all(10),
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: Container(
                                   width: 130,
@@ -844,24 +922,15 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                     ),
                                     borderRadius: BorderRadius.circular(25),
                                   ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.save,
+                                  child: const Center(
+                                    child: Text(
+                                      "Save",
+                                      style: TextStyle(
                                         color: Colors.white,
-                                        size: 18,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        "Save",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -878,14 +947,15 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
         ),
       ),
       bottomNavigationBar: CustomBottomBar(
-        currentIndex: 2,
+        currentIndex: 3,
         onTap: (index) {
           if (index == 0) {
+            Navigator.pushReplacementNamed(context, Routes.Work);
           } else if (index == 1) {
+            // Navigate to messages
           } else if (index == 2) {
-          } else if (index == 3) {
-            Navigator.pushReplacementNamed(context, Routes.workerSettings);
-          }
+            Navigator.pushReplacementNamed(context, Routes.workerProfile);
+          } else if (index == 3) {}
         },
       ),
     );
@@ -916,6 +986,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
               onPressed: () {
                 if (skillController.text.isNotEmpty) {
                   setState(() {
+                    selectedWork.add(skillController.text);
                     customSkills.add(skillController.text);
                   });
                   Navigator.pop(context);

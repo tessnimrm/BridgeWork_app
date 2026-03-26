@@ -4,6 +4,7 @@ import 'package:hexcolor/hexcolor.dart';
 import '../background.dart';
 import 'package:provider/provider.dart';
 import '../models/WorkerModel.dart';
+import 'package:brigdeWork_app/providers/WorkerProvider.dart';
 
 class WorkerProfileSet extends StatefulWidget {
   const WorkerProfileSet({super.key});
@@ -34,6 +35,60 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
   ];
   List<String> Languages = ["English", "Arabic", "French"];
 
+  bool _validateInputs() {
+    if (selectedWork.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select at least one Work option'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+      return false;
+    }
+
+    if (selectedAvailability.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select at least one availability option'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+      return false;
+    }
+
+    if (selectedLanguage.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Please select at least one communication skill option',
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
   void _addNewSkill() {
     TextEditingController skillController = TextEditingController();
 
@@ -57,9 +112,16 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (skillController.text.isNotEmpty) {
+                String newSkill = skillController.text.trim();
+
+                if (newSkill.isNotEmpty) {
                   setState(() {
-                    customSkills.add(skillController.text);
+                    // ✅ إضافة المهارة إلى customSkills
+                    if (!customSkills.contains(newSkill)) {
+                      customSkills.add(newSkill);
+                    }
+                    // ✅ اختيار المهارة تلقائياً (إضافتها إلى selectedWork)
+                    selectedWork.add(newSkill);
                   });
                   Navigator.pop(context);
                 }
@@ -100,9 +162,16 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (languageController.text.isNotEmpty) {
+                String newLanguage = languageController.text.trim();
+
+                if (newLanguage.isNotEmpty) {
                   setState(() {
-                    customLanguages.add(languageController.text);
+                    // ✅ إضافة اللغة إلى customLanguages
+                    if (!customLanguages.contains(newLanguage)) {
+                      customLanguages.add(newLanguage);
+                    }
+                    // ✅ اختيار اللغة تلقائياً (إضافتها إلى selectedLanguage)
+                    selectedLanguage.add(newLanguage);
                   });
                   Navigator.pop(context);
                 }
@@ -542,21 +611,32 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ProfileWorker(
-                                        selectedWork: selectedWork.toList(),
-                                        selectedAvailability:
-                                            selectedAvailability.toList(),
-                                        selectedLanguages: selectedLanguage
-                                            .toList(),
-                                        customSkills: customSkills,
-                                        customLanguages: customLanguages,
-                                        bio: _bioController.text,
+                                  if (_validateInputs()) {
+                                    final workerProvider =
+                                        Provider.of<WorkerProvider>(
+                                          context,
+                                          listen: false,
+                                        );
+
+                                    workerProvider.updateProfile(
+                                      selectedWork: selectedWork.toList(),
+                                      selectedAvailability: selectedAvailability
+                                          .toList(),
+                                      selectedLanguages: selectedLanguage
+                                          .toList(),
+                                      customSkills: customSkills,
+                                      customLanguages: customLanguages,
+                                      bio: _bioController.text,
+                                    );
+
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProfileWorker(),
                                       ),
-                                    ),
-                                  );
+                                    );
+                                  }
                                 },
 
                                 style: ElevatedButton.styleFrom(

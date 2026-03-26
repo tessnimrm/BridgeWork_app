@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/categories.dart';
 import '../widgets/cards.dart';
 import '../WorkerScreen/main_pagework.dart';
-
+/*
 class Hire extends StatefulWidget {
   final String name;
   const Hire({super.key, required this.name});
@@ -195,9 +195,7 @@ class _HireState extends State<Hire> {
                 onPressed: () {
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const Work(name: "Hello !"),
-                    ),
+                    MaterialPageRoute(builder: (context) => const Work()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
@@ -224,3 +222,4 @@ class _HireState extends State<Hire> {
     );
   }
 }
+*/
