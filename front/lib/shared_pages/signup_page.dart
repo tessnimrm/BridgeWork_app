@@ -1,16 +1,17 @@
-import 'package:brigdeWork_app/pages.dart/login_page.dart';
+import 'package:brigdeWork_app/shared_pages/login_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/background.dart';
 import '../widgets/input.dart';
 import '../widgets/button.dart';
 import '../widgets/simplebutton.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:brigdeWork_app/choicepage.dart';
-import 'package:provider/provider.dart';
-import '../providers/WorkerProvider.dart';
+import 'package:brigdeWork_app/shared_pages/choicepage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
+
   @override
   State<Signup> createState() => _SignupState();
 }
@@ -26,6 +27,11 @@ class _SignupState extends State<Signup> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    return emailRegex.hasMatch(email);
   }
 
   bool _validateInputs() {
@@ -46,7 +52,21 @@ class _SignupState extends State<Signup> {
     if (emailController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter your email or phone number'),
+          content: Text('Please enter your email'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+        ),
+      );
+      return false;
+    }
+
+    if (!_isValidEmail(emailController.text.trim())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
           shape: RoundedRectangleBorder(
@@ -61,6 +81,20 @@ class _SignupState extends State<Signup> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please enter your password'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+        ),
+      );
+      return false;
+    }
+
+    if (passwordController.text.trim().length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must be at least 6 characters'),
           backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
           shape: RoundedRectangleBorder(
@@ -137,9 +171,10 @@ class _SignupState extends State<Signup> {
                             ),
                             const SizedBox(height: 10),
                             Input(
-                              text: "Email / Phone number",
+                              text: "Email",
                               obscureText: false,
                               controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
                             ),
                             const SizedBox(height: 14),
                             Input(
@@ -150,25 +185,20 @@ class _SignupState extends State<Signup> {
                             const SizedBox(height: 50),
                             Botton(
                               text: "Create account",
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_validateInputs()) {
-                                  final workerProvider =
-                                      Provider.of<WorkerProvider>(
-                                        context,
-                                        listen: false,
-                                      );
-
-                                  workerProvider.createProfile(
-                                    selectedWork: [],
-                                    selectedAvailability: [],
-                                    selectedLanguages: [],
-                                    customSkills: [],
-                                    customLanguages: [],
-                                    fullName: fullNameController.text.trim(),
-                                    email: emailController.text.trim(),
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.setString(
+                                    'fullName',
+                                    fullNameController.text.trim(),
+                                  );
+                                  await prefs.setString(
+                                    'email',
+                                    emailController.text.trim(),
                                   );
 
-                                  Navigator.push(
+                                  Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => const Choicepage(),
@@ -192,7 +222,6 @@ class _SignupState extends State<Signup> {
                               ),
                             ),
                             const SizedBox(height: 30),
-
                             Bottonsimple(
                               text: "Continue with google",
                               onPressed: () {},

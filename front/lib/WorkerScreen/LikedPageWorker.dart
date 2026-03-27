@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:brigdeWork_app/background.dart';
+import 'package:brigdeWork_app/shared_pages/background.dart';
 import 'package:provider/provider.dart';
 import '../providers/LikedJobsProvider.dart';
 import '../widgets/cards.dart';

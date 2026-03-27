@@ -1,7 +1,11 @@
 import 'package:brigdeWork_app/CompanyScreen/companyProfileSet.dart';
 import 'package:brigdeWork_app/WorkerScreen/workerProfileSet.dart';
-import 'package:brigdeWork_app/background.dart';
+import 'package:brigdeWork_app/shared_pages/background.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/WorkerProvider.dart';
+import '../providers/CompanyProvider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Choicepage extends StatefulWidget {
   const Choicepage({super.key});
@@ -13,6 +17,12 @@ class Choicepage extends StatefulWidget {
 class _ChoicepageState extends State<Choicepage> {
   @override
   Widget build(BuildContext context) {
+    final workerProvider = Provider.of<WorkerProvider>(context, listen: false);
+    final companyProvider = Provider.of<CompanyProvider>(
+      context,
+      listen: false,
+    );
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: GradientBackground(
@@ -45,11 +55,34 @@ class _ChoicepageState extends State<Choicepage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    String fullName = prefs.getString('fullName') ?? '';
+                    String email = prefs.getString('email') ?? '';
+
+                    workerProvider.createProfile(
+                      selectedJob: '',
+                      selectedSkills: [],
+                      selectedAvailability: [],
+                      selectedLanguages: [],
+                      customJobs: [],
+                      customLanguages: [],
+                      fullName: fullName,
+                      email: email,
+                      phone: '',
+                      bio: '',
+                      education: '',
+                      experience: '',
+                      projects: '',
+                      coverImagePath: '',
+                      profileImagePath: '',
+                    );
+
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WorkerProfileSet(),
+                        builder: (context) => const WorkerProfileSet(),
                       ),
                     );
                   },
@@ -98,11 +131,37 @@ class _ChoicepageState extends State<Choicepage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: InkWell(
-                  onTap: () {
-                    Navigator.push(
+                  onTap: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    String fullName = prefs.getString('fullName') ?? '';
+                    String email = prefs.getString('email') ?? '';
+
+                    companyProvider.createProfile(
+                      selectedIndustry: '',
+                      selectedAvailabilities: [],
+                      requiredSkills: [],
+                      selectedLanguages: [],
+                      customIndustries: [],
+                      customLanguages: [],
+                      description: '',
+                      companyName: fullName,
+                      email: email,
+                      phone: '',
+                      website: '',
+                      coverImagePath: '',
+                      logoImagePath: '',
+                      address: '',
+                      employeeCount: 0,
+                      services: '',
+                      achievements: '',
+                      companyOverview: '',
+                    );
+
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CompanyProfileSet(),
+                        builder: (context) => const CompanyProfileSet(),
                       ),
                     );
                   },

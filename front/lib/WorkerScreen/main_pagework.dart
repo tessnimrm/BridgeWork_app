@@ -7,11 +7,11 @@ import '../widgets/categories.dart';
 import '../widgets/cards.dart';
 import '../CompanyScreen/main_pagehire.dart';
 import '../WorkerScreen/bottomBarWorker.dart';
-import '../Routes.dart';
 import '../providers/WorkerProvider.dart';
 import '../providers/LikedJobsProvider.dart';
 import '../models/JobModel.dart';
-import '../WorkerScreen/theirProfile.dart';
+import 'package:brigdeWork_app/shared_pages/Routes.dart';
+import 'package:brigdeWork_app/WorkerScreen/theirProfileWorker.dart';
 
 class Work extends StatefulWidget {
   const Work({super.key});
@@ -191,7 +191,7 @@ class _WorkState extends State<Work> {
                             ),
                             Categories(
                               text: "Business",
-                              imagePath: "lib/images/business.png",
+                              imagePath: "lib/images/buuisness.png",
                             ),
                             const SizedBox(width: 10),
                           ],
@@ -222,9 +222,8 @@ class _WorkState extends State<Work> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Theirprofile(
-                                    worker: job,
-                                  ),
+                                  builder: (context) =>
+                                      Theirprofile(worker: job),
                                 ),
                               );
                             },
@@ -247,7 +246,7 @@ class _WorkState extends State<Work> {
           if (index == 0) {
             // stay
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/messages');
+            Navigator.pushReplacementNamed(context, Routes.MessagesPage);
           } else if (index == 2) {
             Navigator.pushReplacementNamed(context, Routes.workerProfile);
           } else if (index == 3) {

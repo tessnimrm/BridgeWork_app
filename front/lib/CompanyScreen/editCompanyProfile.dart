@@ -1,4 +1,4 @@
-import 'package:brigdeWork_app/WorkerScreen/bottomBarWorker.dart';
+import 'package:brigdeWork_app/CompanyScreen/bottomBarCompany.dart';
 import 'package:brigdeWork_app/shared_pages/background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -7,38 +7,33 @@ import 'package:brigdeWork_app/shared_pages/Routes.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
-import 'package:brigdeWork_app/providers/WorkerProvider.dart';
+import 'package:brigdeWork_app/providers/CompanyProvider.dart';
 
-class EditProfileWorker extends StatefulWidget {
-  const EditProfileWorker({super.key});
+class EditCompanyProfile extends StatefulWidget {
+  const EditCompanyProfile({super.key});
 
   @override
-  State<EditProfileWorker> createState() => _EditProfileWorkerState();
+  State<EditCompanyProfile> createState() => _EditCompanyProfileState();
 }
 
-class _EditProfileWorkerState extends State<EditProfileWorker> {
+class _EditCompanyProfileState extends State<EditCompanyProfile> {
   File? _coverImage;
-  File? _profileImage;
+  File? _logoImage;
   final ImagePicker _picker = ImagePicker();
-  Set<String> selectedSkills = {}; // تغيير من selectedWork إلى selectedSkills
+  Set<String> selectedSkills = {};
   Set<String> selectedAvailability = {};
   Set<String> selectedLanguage = {};
-  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _companyNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-  final TextEditingController _educationController = TextEditingController();
-  final TextEditingController _experienceController = TextEditingController();
-  final TextEditingController _projectsController = TextEditingController();
+  final TextEditingController _servicesController = TextEditingController();
+  final TextEditingController _achievementController = TextEditingController();
+  final TextEditingController _overviewController = TextEditingController();
 
   List<String> customLanguages = [];
 
-  List<String> skillTypes = [
-    "Cooking",
-    "Waiter",
-    "Delivery",
-    "UI/UX Design",
-  ]; // الاحتفاظ بنفس القائمة
+  List<String> skillTypes = ["Cooking", "Waiter", "Delivery", "UI/UX Design"];
   List<String> availabilityTypes = [
     "morning",
     "afternoon",
@@ -54,39 +49,44 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
   void initState() {
     super.initState();
 
-    final workerProvider = Provider.of<WorkerProvider>(context, listen: false);
-    final currentData = workerProvider.workerData;
+    final companyProvider = Provider.of<CompanyProvider>(
+      context,
+      listen: false,
+    );
+    final currentData = companyProvider.companyData;
 
     if (currentData != null) {
-      selectedSkills = currentData.selectedSkills.toSet();
-      selectedAvailability = currentData.selectedAvailability.toSet();
+      selectedSkills = currentData.requiredSkills.toSet();
+      selectedAvailability = currentData.selectedAvailabilities.toSet();
       selectedLanguage = currentData.selectedLanguages.toSet();
       customLanguages = List.from(currentData.customLanguages);
-      _fullNameController.text = currentData.fullName;
+      _companyNameController.text = currentData.companyName;
       _emailController.text = currentData.email;
       _phoneController.text = currentData.phone;
-      _bioController.text = currentData.bio;
-      _educationController.text = currentData.education;
-      _experienceController.text = currentData.experience;
-      _projectsController.text = currentData.projects;
+      _bioController.text = currentData.description;
+      _servicesController.text = '';
+      _achievementController.text = '';
+      _overviewController.text = '';
+      _companyNameController.text = currentData.companyName;
+      _emailController.text = currentData.email;
     }
   }
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _companyNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _bioController.dispose();
-    _educationController.dispose();
-    _experienceController.dispose();
-    _projectsController.dispose();
+    _servicesController.dispose();
+    _achievementController.dispose();
+    _overviewController.dispose();
     super.dispose();
   }
 
   bool _validateInputs() {
-    if (_fullNameController.text.trim().isEmpty) {
-      _showError('Please enter your full name');
+    if (_companyNameController.text.trim().isEmpty) {
+      _showError('Please enter your company name');
       return false;
     }
 
@@ -105,7 +105,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
       return false;
     }
 
-    return true; // المهارات اختيارية، ليست مجبرة
+    return true;
   }
 
   bool _isValidEmail(String email) {
@@ -140,7 +140,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
           if (isCover) {
             _coverImage = File(pickedFile.path);
           } else {
-            _profileImage = File(pickedFile.path);
+            _logoImage = File(pickedFile.path);
           }
         });
       }
@@ -160,7 +160,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(isCover ? 'Change Cover Photo' : 'Change Profile Photo'),
+          title: Text(isCover ? 'Change Cover Photo' : 'Change Logo'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -260,8 +260,8 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                   height: 100,
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
-                                      image: _profileImage != null
-                                          ? FileImage(_profileImage!)
+                                      image: _logoImage != null
+                                          ? FileImage(_logoImage!)
                                           : const AssetImage(
                                                   'lib/images/photo_2.jpg',
                                                 )
@@ -299,13 +299,13 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
 
-                        // Full name field
+                        // Company name field
                         const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 24),
                             child: Text(
-                              "Full name",
+                              "Company name",
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -320,9 +320,9 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
-                              controller: _fullNameController,
+                              controller: _companyNameController,
                               decoration: InputDecoration(
-                                hintText: 'Your full name',
+                                hintText: 'Your company name',
                                 hintStyle: TextStyle(
                                   color: Color(0xFF9CA3AF),
                                   fontSize: 14,
@@ -421,7 +421,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                         ),
                         const SizedBox(height: 15),
 
-                        // Skills and Availability row (نفس التصميم)
+                        // Skills and Availability row
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: IntrinsicHeight(
@@ -451,7 +451,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                                     Icon(Icons.code, size: 16),
                                                     SizedBox(width: 4),
                                                     Text(
-                                                      "Skills",
+                                                      "Skills Needed",
                                                       style: TextStyle(
                                                         fontSize: 16,
                                                         fontWeight:
@@ -681,13 +681,13 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                           ),
                         ),
 
-                        // About me
+                        // About Company
                         const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 24),
                             child: Text(
-                              "About me",
+                              "About Company",
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -706,7 +706,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               minLines: 3,
                               maxLines: 5,
                               decoration: InputDecoration(
-                                hintText: 'Tell us about yourself...',
+                                hintText: 'Tell us about your company...',
                                 hintStyle: TextStyle(
                                   color: Color(0xFF9CA3AF),
                                   fontSize: 14,
@@ -722,13 +722,13 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                         ),
                         const SizedBox(height: 15),
 
-                        // Education
+                        // Services
                         const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 24),
                             child: Text(
-                              "Education",
+                              "Services",
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -743,11 +743,11 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
-                              controller: _educationController,
+                              controller: _servicesController,
                               minLines: 3,
                               maxLines: 5,
                               decoration: InputDecoration(
-                                hintText: 'Enter your education',
+                                hintText: 'Enter your services...',
                                 hintStyle: TextStyle(
                                   color: Color(0xFF9CA3AF),
                                   fontSize: 14,
@@ -763,13 +763,13 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                         ),
                         const SizedBox(height: 15),
 
-                        // Experience
+                        // Achievements
                         const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 24),
                             child: Text(
-                              "Experience",
+                              "Achievements",
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -784,11 +784,11 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
-                              controller: _experienceController,
+                              controller: _achievementController,
                               minLines: 3,
                               maxLines: 5,
                               decoration: InputDecoration(
-                                hintText: 'Enter your experience',
+                                hintText: 'Enter your achievements...',
                                 hintStyle: TextStyle(
                                   color: Color(0xFF9CA3AF),
                                   fontSize: 14,
@@ -804,13 +804,13 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                         ),
                         const SizedBox(height: 15),
 
-                        // Projects
+                        // Company Overview
                         const Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 24),
                             child: Text(
-                              "Projects",
+                              "Company Overview",
                               style: TextStyle(fontSize: 16),
                             ),
                           ),
@@ -825,11 +825,11 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: TextField(
-                              controller: _projectsController,
+                              controller: _overviewController,
                               minLines: 3,
                               maxLines: 5,
                               decoration: InputDecoration(
-                                hintText: 'Enter your projects',
+                                hintText: 'Company overview...',
                                 hintStyle: TextStyle(
                                   color: Color(0xFF9CA3AF),
                                   fontSize: 14,
@@ -857,29 +857,29 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                               GestureDetector(
                                 onTap: () {
                                   if (_validateInputs()) {
-                                    final workerProvider =
-                                        Provider.of<WorkerProvider>(
+                                    final companyProvider =
+                                        Provider.of<CompanyProvider>(
                                           context,
                                           listen: false,
                                         );
 
-                                    workerProvider.updateWorkerData(
-                                      selectedSkills: selectedSkills.toList(),
-                                      selectedAvailability: selectedAvailability
-                                          .toList(),
+                                    companyProvider.updateCompanyData(
+                                      selectedAvailabilities:
+                                          selectedAvailability.toList(),
+                                      requiredSkills: selectedSkills.toList(),
                                       selectedLanguages: selectedLanguage
                                           .toList(),
                                       customLanguages: customLanguages,
-                                      fullName: _fullNameController.text.trim(),
+                                      companyName: _companyNameController.text
+                                          .trim(),
                                       email: _emailController.text.trim(),
                                       phone: _phoneController.text.trim(),
-                                      bio: _bioController.text,
-                                      education: _educationController.text,
-                                      experience: _experienceController.text,
-                                      projects: _projectsController.text,
+                                      description: _bioController.text,
                                       coverImagePath: _coverImage?.path ?? '',
-                                      profileImagePath:
-                                          _profileImage?.path ?? '',
+                                      logoImagePath: _logoImage?.path ?? '',
+                                      services: _servicesController.text,
+                                      achievements: _achievementController.text,
+                                      companyOverview: _overviewController.text,
                                     );
 
                                     Navigator.pop(context);
@@ -887,7 +887,7 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
-                                          'Profile updated successfully!',
+                                          'Company profile updated successfully!',
                                         ),
                                         backgroundColor: Colors.green,
                                         duration: Duration(seconds: 2),
@@ -941,15 +941,15 @@ class _EditProfileWorkerState extends State<EditProfileWorker> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(
+      bottomNavigationBar: CustomBottomBarCompany(
         currentIndex: 3,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, Routes.Work);
+            Navigator.pushReplacementNamed(context, Routes.Hire);
           } else if (index == 1) {
-            // Navigate to messages
+            Navigator.pushReplacementNamed(context, Routes.MessagesPage);
           } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, Routes.workerProfile);
+            Navigator.pushReplacementNamed(context, Routes.companyProfile);
           } else if (index == 3) {}
         },
       ),

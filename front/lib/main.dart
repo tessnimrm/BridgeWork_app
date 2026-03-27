@@ -2,24 +2,36 @@ import 'package:brigdeWork_app/CompanyScreen/profileCompany.dart';
 import 'package:brigdeWork_app/WorkerScreen/Workersettings.dart';
 import 'package:brigdeWork_app/WorkerScreen/editWorkerProfile.dart';
 import 'package:brigdeWork_app/WorkerScreen/profileWorker.dart';
-import 'package:brigdeWork_app/choicepage.dart';
-import 'package:brigdeWork_app/background.dart';
+import 'package:brigdeWork_app/shared_pages/choicepage.dart';
 import 'package:flutter/material.dart';
-import 'package:brigdeWork_app/Routes.dart';
-import 'package:brigdeWork_app/pages.dart/first_page.dart';
+import 'package:brigdeWork_app/shared_pages/Routes.dart';
+import 'package:brigdeWork_app/shared_pages/first_page.dart';
 import 'package:brigdeWork_app/WorkerScreen/main_pagework.dart';
+import 'package:brigdeWork_app/CompanyScreen/main_pagehire.dart';
 import 'package:provider/provider.dart';
 import 'package:brigdeWork_app/providers/WorkerProvider.dart';
 import 'package:brigdeWork_app/providers/LikedJobsProvider.dart';
 import '../providers/RequestProvider.dart';
+import 'package:brigdeWork_app/message_page.dart';
+import 'package:brigdeWork_app/providers/CompanyProvider.dart';
+import 'package:brigdeWork_app/CompanyScreen/CompanySettings.dart';
+import 'package:brigdeWork_app/CompanyScreen/editCompanyProfile.dart';
+import 'package:brigdeWork_app/providers/UserProvider.dart';
+import 'package:brigdeWork_app/providers/CompanyLiked.dart';
+import 'package:brigdeWork_app/providers/CompanyRequest.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => WorkerProvider()),
+        ChangeNotifierProvider(create: (_) => CompanyProvider()),
         ChangeNotifierProvider(create: (_) => LikedJobsProvider()),
         ChangeNotifierProvider(create: (_) => RequestsProvider()),
+        ChangeNotifierProvider(create: (_) => CompanyProvider()),
+        ChangeNotifierProvider(create: (_) => CompanyLikedWorkersProvider()),
+        ChangeNotifierProvider(create: (_) => CompanyRequestsProvider()),
       ],
 
       child: const MyApp(),
@@ -40,6 +52,8 @@ class MyApp extends StatelessWidget {
       onGenerateRoute: (settings) {
         if (settings.name == '/firstPage') {
           return MaterialPageRoute(builder: (context) => const Realone());
+        } else if (settings.name == Routes.MessagesPage) {
+          return MaterialPageRoute(builder: (context) => const MessagesPage());
         }
         // صفحات العامل
         else if (settings.name == Routes.workerProfile) {
@@ -63,16 +77,14 @@ class MyApp extends StatelessWidget {
           );
         } else if (settings.name == Routes.companySettings) {
           return MaterialPageRoute(
-            builder: (context) => const Scaffold(
-              body: Center(child: Text('Company Settings Page')),
-            ),
+            builder: (context) => const CompanySettingsPage(),
           );
         } else if (settings.name == Routes.companyEditProfile) {
           return MaterialPageRoute(
-            builder: (context) => const Scaffold(
-              body: Center(child: Text('Edit Company Profile Page')),
-            ),
+            builder: (context) => const EditCompanyProfile(),
           );
+        } else if (settings.name == Routes.Hire) {
+          return MaterialPageRoute(builder: (context) => const Hire());
         }
         return null;
       },

@@ -1,11 +1,11 @@
-import 'package:brigdeWork_app/pages.dart/signup_page.dart';
+import 'package:brigdeWork_app/shared_pages/signup_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/background.dart';
 import '../widgets/input.dart';
 import '../widgets/button.dart';
 import '../widgets/simplebutton.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:brigdeWork_app/choicepage.dart';
+import 'package:brigdeWork_app/shared_pages/choicepage.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});

@@ -1,50 +1,65 @@
-//import 'package:BrigdeWork_app/bottomBar.dart';
-import 'package:brigdeWork_app/background.dart';
+import 'package:brigdeWork_app/CompanyScreen/bottomBarCompany.dart';
+import 'package:brigdeWork_app/shared_pages/background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:brigdeWork_app/shared_pages/Routes.dart';
+import 'package:brigdeWork_app/providers/CompanyProvider.dart';
+import 'package:provider/provider.dart';
+import 'package:brigdeWork_app/CompanyScreen/companyProfileSet.dart';
+import 'dart:io';
 
 class ProfileCompany extends StatefulWidget {
-  final List<String> selectedWork;
-  final List<String> selectedAvailability;
-  final List<String> selectedLanguages;
-  final List<String> customSkills;
-  final List<String> customLanguages;
-  final String bio;
-  const ProfileCompany({
-    super.key,
-    this.selectedWork = const [],
-    this.selectedAvailability = const [],
-    this.selectedLanguages = const [],
-    this.customSkills = const [],
-    this.customLanguages = const [],
-    this.bio = '',
-  });
+  const ProfileCompany({super.key});
 
   @override
   State<ProfileCompany> createState() => _ProfileCompanyState();
 }
 
 class _ProfileCompanyState extends State<ProfileCompany> {
-  bool isEducationVisible = false;
-  bool isExperienceVisible = false;
-  bool isProjectsVisible = false;
-  //int _selectedIndex = 2; // 2 يعني صفحة Profile
+  bool isSkillsVisible = false;
+  bool isServicesVisible = false;
+  bool isOverviewVisible = false;
 
   @override
   Widget build(BuildContext context) {
+    final companyProvider = Provider.of<CompanyProvider>(context);
+    final data = companyProvider.companyData;
+
+    if (data == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const CompanyProfileSet()),
+        );
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final coverImage = data.coverImagePath.isNotEmpty
+        ? FileImage(File(data.coverImagePath))
+        : const AssetImage('lib/images/photo_1.jpg') as ImageProvider;
+    final logoImage = data.logoImagePath.isNotEmpty
+        ? FileImage(File(data.logoImagePath))
+        : const AssetImage('lib/images/photo_2.jpg') as ImageProvider;
+
+    final allSkills = <String>[];
+    if (data.requiredSkills != null && data.requiredSkills.isNotEmpty) {
+      allSkills.addAll(data.requiredSkills);
+    }
+
+    final allAvailability = <String>[];
+    if (data.selectedAvailabilities.isNotEmpty) {
+      allAvailability.addAll(data.selectedAvailabilities);
+    }
+
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: GradientBackground(
-        child: Container(
-          width: double.infinity,
-          height: double.infinity,
+      body: SafeArea(
+        child: GradientBackground(
           child: SingleChildScrollView(
             child: Column(
               children: [
-                //const SizedBox(height: 10),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(top: 23),
                   child: Column(
                     children: [
                       Stack(
@@ -55,7 +70,7 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                             height: 152,
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                image: AssetImage('lib/images/photo_1.jpg'),
+                                image: coverImage,
                                 fit: BoxFit.cover,
                               ),
                               borderRadius: BorderRadius.circular(20),
@@ -71,7 +86,7 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                 height: 100,
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                    image: AssetImage('lib/images/photo_2.jpg'),
+                                    image: logoImage,
                                     fit: BoxFit.cover,
                                   ),
                                   borderRadius: BorderRadius.circular(100),
@@ -85,30 +100,35 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 60),
-
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           children: [
                             Text(
-                              'COMPANY NAME',
-                              style: TextStyle(
+                              data.companyName.isNotEmpty
+                                  ? data.companyName
+                                  : 'COMPANY NAME',
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            // المجال اللي اختاره
                             Text(
-                              '',
-                              style: TextStyle(
+                              data.selectedIndustry.isNotEmpty
+                                  ? data.selectedIndustry
+                                  : 'No industry selected',
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
+                                color: Colors.grey,
                               ),
                             ),
                           ],
                         ),
                       ),
+                      const SizedBox(height: 15),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: IntrinsicHeight(
@@ -137,9 +157,9 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                                   Icon(Icons.code, size: 16),
                                                   SizedBox(width: 4),
                                                   Text(
-                                                    "Skills needed",
+                                                    "Skills Needed",
                                                     style: TextStyle(
-                                                      fontSize: 14,
+                                                      fontSize: 16,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -147,13 +167,11 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                                 ],
                                               ),
                                               const SizedBox(height: 8),
-                                              if (widget
-                                                  .selectedWork
-                                                  .isNotEmpty)
+                                              if (allSkills.isNotEmpty)
                                                 Wrap(
                                                   spacing: 8,
                                                   runSpacing: 8,
-                                                  children: widget.selectedWork.map((
+                                                  children: allSkills.map((
                                                     skill,
                                                   ) {
                                                     return Container(
@@ -181,7 +199,14 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                                   }).toList(),
                                                 )
                                               else
-                                                Text(""),
+                                                const Text(
+                                                  "No skills added yet",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                    fontStyle: FontStyle.italic,
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                         ),
@@ -210,9 +235,9 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                                   ),
                                                   SizedBox(width: 4),
                                                   Text(
-                                                    "Availability needed",
+                                                    "Availability",
                                                     style: TextStyle(
-                                                      fontSize: 12.5,
+                                                      fontSize: 14,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -220,39 +245,49 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                                 ],
                                               ),
                                               const SizedBox(height: 8),
-                                              Wrap(
-                                                spacing: 4,
-                                                children: widget.selectedAvailability.map((
-                                                  availability,
-                                                ) {
-                                                  return Container(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                          vertical: 4,
-                                                        ),
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                          bottom: 4,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: HexColor(
-                                                        "#D9D9D9",
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            20,
+                                              if (allAvailability.isNotEmpty)
+                                                Wrap(
+                                                  spacing: 4,
+                                                  children: allAvailability.map((
+                                                    availability,
+                                                  ) {
+                                                    return Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 4,
                                                           ),
-                                                    ),
-                                                    child: Text(
-                                                      availability,
-                                                      style: const TextStyle(
-                                                        fontSize: 10,
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                            bottom: 4,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: HexColor(
+                                                          "#D9D9D9",
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              20,
+                                                            ),
                                                       ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
+                                                      child: Text(
+                                                        availability,
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                )
+                                              else
+                                                const Text(
+                                                  "No availability selected",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey,
+                                                    fontStyle: FontStyle.italic,
+                                                  ),
+                                                ),
                                             ],
                                           ),
                                         ),
@@ -279,29 +314,27 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                           const Row(
                                             children: [
                                               Icon(
-                                                Icons.person_outline,
+                                                Icons.info_outline,
                                                 size: 16,
                                               ),
                                               SizedBox(width: 4),
                                               Text(
-                                                "About My Company",
+                                                "About Us",
                                                 style: TextStyle(
-                                                  fontSize: 12.5,
+                                                  fontSize: 16,
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ],
                                           ),
                                           const SizedBox(height: 10),
-                                          Expanded(
-                                            child: Text(
-                                              widget.bio.isEmpty
-                                                  ? ""
-                                                  : widget.bio,
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                height: 1.4,
-                                              ),
+                                          Text(
+                                            data.description.isEmpty
+                                                ? "No description added"
+                                                : data.description,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                              height: 1.4,
                                             ),
                                           ),
                                         ],
@@ -314,24 +347,21 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           children: [
                             _buildMainCard(
                               title: "Services",
-                              isVisible: isEducationVisible,
+                              isVisible: isServicesVisible,
                               onTap: () {
                                 setState(() {
-                                  isEducationVisible = !isEducationVisible;
+                                  isServicesVisible = !isServicesVisible;
                                 });
                               },
                             ),
-
-                            if (isEducationVisible)
+                            if (isServicesVisible)
                               Container(
                                 margin: const EdgeInsets.only(top: 8),
                                 width: double.infinity,
@@ -346,70 +376,79 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
-                                          "Studied computer science at university, focusing on programming, algorithms, and problem-solving.",
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            height: 1.5,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Container(
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                        const SizedBox(height: 8),
+                                        if (data.services.isNotEmpty)
+                                          Text(
+                                            data.services,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              height: 1.5,
+                                            ),
+                                          )
+                                        else
+                                          const Text(
+                                            "No services added yet",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                              fontStyle: FontStyle.italic,
                                             ),
                                           ),
-                                          child: const Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Bachelor of Science in Computer Science",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                "University of Technology • 2020 - 2024",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                              SizedBox(height: 8),
-                                              Text(
-                                                "• Data Structures & Algorithms\n• Object-Oriented Programming\n• Database Management\n• Web Development\n• Mobile App Development",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  height: 1.5,
-                                                ),
-                                              ),
-                                            ],
+                                        if (data
+                                            .customIndustries
+                                            .isNotEmpty) ...[
+                                          const SizedBox(height: 12),
+                                          const Text(
+                                            "Custom Services:",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 8),
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children: data.customIndustries.map((
+                                              service,
+                                            ) {
+                                              return Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 6,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: HexColor("#D9D9D9"),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  service,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),
                                 ),
                               ),
-
                             const SizedBox(height: 12),
-
                             _buildMainCard(
-                              title: "Achievements",
-                              isVisible: isExperienceVisible,
+                              title: "Achievement",
+                              isVisible: isSkillsVisible,
                               onTap: () {
                                 setState(() {
-                                  isExperienceVisible = !isExperienceVisible;
+                                  isSkillsVisible = !isSkillsVisible;
                                 });
                               },
                             ),
-
-                            if (isExperienceVisible)
+                            if (isSkillsVisible)
                               Container(
                                 margin: const EdgeInsets.only(top: 8),
                                 width: double.infinity,
@@ -424,62 +463,40 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                        const SizedBox(height: 8),
+                                        if (data.achievements.isNotEmpty)
+                                          Text(
+                                            data.achievements,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              height: 1.5,
+                                            ),
+                                          )
+                                        else
+                                          const Text(
+                                            "No achievements added yet",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                              fontStyle: FontStyle.italic,
                                             ),
                                           ),
-                                          child: const Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "UI/UX Designer",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                "Design Studio • 2022 - Present",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                              SizedBox(height: 8),
-                                              Text(
-                                                "• Designed user interfaces for 10+ mobile apps\n• Conducted user research and usability testing\n• Created wireframes and prototypes\n• Collaborated with developers",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  height: 1.5,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ),
                                 ),
                               ),
-
                             const SizedBox(height: 12),
-
                             _buildMainCard(
                               title: "Company Overview",
-                              isVisible: isProjectsVisible,
+                              isVisible: isOverviewVisible,
                               onTap: () {
                                 setState(() {
-                                  isProjectsVisible = !isProjectsVisible;
+                                  isOverviewVisible = !isOverviewVisible;
                                 });
                               },
                             ),
-
-                            if (isProjectsVisible)
+                            if (isOverviewVisible)
                               Container(
                                 margin: const EdgeInsets.only(top: 8),
                                 width: double.infinity,
@@ -494,51 +511,116 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.all(12),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
+                                        // ✅ عرض Company Overview أولاً
+                                        if (data
+                                            .companyOverview
+                                            .isNotEmpty) ...[
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            data.companyOverview,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              height: 1.5,
                                             ),
                                           ),
-                                          child: const Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                          const SizedBox(height: 12),
+                                        ],
+                                        if (data.website.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 8,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.link,
+                                                  size: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  data.website,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        if (data.address.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 8,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.location_on,
+                                                  size: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  data.address,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        if (data.phone.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              bottom: 8,
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.phone,
+                                                  size: 14,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  data.phone,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        if (data.email.isNotEmpty)
+                                          Row(
                                             children: [
+                                              const Icon(
+                                                Icons.email,
+                                                size: 14,
+                                                color: Colors.grey,
+                                              ),
+                                              const SizedBox(width: 8),
                                               Text(
-                                                "E-commerce App Design",
-                                                style: TextStyle(
+                                                data.email,
+                                                style: const TextStyle(
                                                   fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                "UI/UX Design • 2024",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                              Divider(height: 16),
-                                              Text(
-                                                "Portfolio Website",
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              SizedBox(height: 4),
-                                              Text(
-                                                "Web Design • 2023",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: Colors.grey,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ),
+                                        if (data.companyOverview.isEmpty &&
+                                            data.website.isEmpty &&
+                                            data.address.isEmpty &&
+                                            data.phone.isEmpty &&
+                                            data.email.isEmpty)
+                                          const Text(
+                                            "No company overview added yet",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.grey,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -547,7 +629,6 @@ class _ProfileCompanyState extends State<ProfileCompany> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 12),
                     ],
                   ),
@@ -556,23 +637,21 @@ class _ProfileCompanyState extends State<ProfileCompany> {
             ),
           ),
         ),
-        //),
       ),
-      /*
-      bottomNavigationBar: CustomBottomBar(
+      bottomNavigationBar: CustomBottomBarCompany(
         currentIndex: 2,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, Routes.Hire);
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/messages');
+            Navigator.pushReplacementNamed(context, Routes.MessagesPage);
           } else if (index == 2) {
+            // Already on profile
           } else if (index == 3) {
-            Navigator.pushReplacementNamed(context, '/settings');
+            Navigator.pushNamed(context, Routes.companySettings);
           }
         },
       ),
-      */
     );
   }
 

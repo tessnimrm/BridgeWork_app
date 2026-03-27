@@ -1,10 +1,10 @@
 import 'package:brigdeWork_app/WorkerScreen/Workersettings.dart';
 import 'package:brigdeWork_app/WorkerScreen/bottomBarWorker.dart';
 import 'package:brigdeWork_app/WorkerScreen/editWorkerProfile.dart';
-import 'package:brigdeWork_app/background.dart';
+import 'package:brigdeWork_app/shared_pages/background.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:brigdeWork_app/Routes.dart';
+import 'package:brigdeWork_app/shared_pages/Routes.dart';
 import 'package:brigdeWork_app/providers/WorkerProvider.dart';
 import 'package:provider/provider.dart';
 import 'package:brigdeWork_app/WorkerScreen/workerProfileSet.dart';
@@ -44,15 +44,17 @@ class _ProfileWorkerState extends State<ProfileWorker> {
         ? FileImage(File(data.profileImagePath))
         : const AssetImage('lib/images/photo_2.jpg') as ImageProvider;
 
-    final allSkills = {...data.selectedWork, ...data.customSkills}.toList();
+    // جمع كل المهارات (المهارات الأساسية فقط، لأن customJobs هي وظائف مخصصة)
+    final allSkills = <String>[];
 
-    final allLanguages = {
-      ...data.selectedLanguages,
-      ...data.customLanguages,
-    }.toList();
+    // إضافة المهارات الأساسية إذا كانت موجودة
+    if (data.selectedSkills != null && data.selectedSkills.isNotEmpty) {
+      allSkills.addAll(data.selectedSkills);
+    }
 
+    // الطريقة الصحيحة لدمج القوائم
+    final allLanguages = [...data.selectedLanguages, ...data.customLanguages];
     return Scaffold(
-      //backgroundColor: Colors.transparent,
       body: SafeArea(
         child: GradientBackground(
           child: SingleChildScrollView(
@@ -60,7 +62,6 @@ class _ProfileWorkerState extends State<ProfileWorker> {
               children: [
                 Container(
                   width: double.infinity,
-                  //padding: const EdgeInsets.only(top: 23),
                   child: Column(
                     children: [
                       Stack(
@@ -115,8 +116,11 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            // إظهار المهنة المختارة
                             Text(
-                              'UI/UX Designer',
+                              data.selectedJob.isNotEmpty
+                                  ? data.selectedJob
+                                  : 'No job selected',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w400,
@@ -135,6 +139,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                               Expanded(
                                 child: Column(
                                   children: [
+                                    // كارد المهارات (يبقى موجود حتى لو كان فارغاً)
                                     Container(
                                       width: double.infinity,
                                       child: Card(
@@ -197,10 +202,11 @@ class _ProfileWorkerState extends State<ProfileWorker> {
                                                 )
                                               else
                                                 const Text(
-                                                  "No skills added",
+                                                  "",
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                     color: Colors.grey,
+                                                    fontStyle: FontStyle.italic,
                                                   ),
                                                 ),
                                             ],
@@ -449,7 +455,7 @@ class _ProfileWorkerState extends State<ProfileWorker> {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, Routes.Work);
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/messages');
+            Navigator.pushReplacementNamed(context, Routes.MessagesPage);
           } else if (index == 2) {
           } else if (index == 3) {
             Navigator.pushNamed(context, Routes.workerSettings);

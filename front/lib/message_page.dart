@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import './ChatPage.dart';
+import '../WorkerScreen/bottomBarWorker.dart';
+import 'shared_pages/Routes.dart';
 import './models/modelsChat.dart';
 
 class MessagesPage extends StatefulWidget {
@@ -30,13 +32,18 @@ class _MessagesPageState extends State<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F0F0), 
+      backgroundColor: const Color(0xFFF0F0F0),
       body: Column(
         children: [
           Container(
             width: double.infinity,
             height: 191,
-            padding: const EdgeInsets.only(top: 60, left: 16, right: 16, bottom: 16),
+            padding: const EdgeInsets.only(
+              top: 60,
+              left: 16,
+              right: 16,
+              bottom: 16,
+            ),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 162, 130, 215),
               borderRadius: BorderRadius.only(
@@ -47,7 +54,6 @@ class _MessagesPageState extends State<MessagesPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                
                 const Text(
                   "Messages",
                   style: TextStyle(
@@ -63,7 +69,10 @@ class _MessagesPageState extends State<MessagesPage> {
                     filled: true,
                     fillColor: Colors.white,
                     prefixIcon: const Icon(Icons.search),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
@@ -81,7 +90,10 @@ class _MessagesPageState extends State<MessagesPage> {
               itemBuilder: (context, index) {
                 final convo = conversations[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(
@@ -165,6 +177,19 @@ class _MessagesPageState extends State<MessagesPage> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: CustomBottomBar(
+        currentIndex: 1,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, Routes.Work);
+          } else if (index == 1) {
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, Routes.workerProfile);
+          } else if (index == 3) {
+            Navigator.pushNamed(context, Routes.workerSettings);
+          }
+        },
       ),
     );
   }

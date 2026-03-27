@@ -1,4 +1,4 @@
-import './signup_page.dart';
+import 'signup_page.dart';
 import 'package:flutter/material.dart';
 import '../widgets/button.dart';
 import '../widgets/background.dart';
@@ -65,9 +65,7 @@ class Realone extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const Hire(name: "Hello !"),
-                        ),
+                        MaterialPageRoute(builder: (context) => const Hire()),
                       );
                     },
                     child: Text(

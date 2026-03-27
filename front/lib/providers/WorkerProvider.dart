@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class WorkerData {
-  final List<String> selectedWork;
+  final String selectedJob;
+  final List<String> selectedSkills;
   final List<String> selectedAvailability;
   final List<String> selectedLanguages;
-  final List<String> customSkills;
+  final List<String> customJobs;
   final List<String> customLanguages;
   final String bio;
   final String education;
@@ -17,10 +18,11 @@ class WorkerData {
   final String profileImagePath;
 
   WorkerData({
-    required this.selectedWork,
+    required this.selectedJob,
+    required this.selectedSkills,
     required this.selectedAvailability,
     required this.selectedLanguages,
-    required this.customSkills,
+    required this.customJobs,
     required this.customLanguages,
     this.bio = '',
     required this.education,
@@ -34,10 +36,11 @@ class WorkerData {
   });
 
   WorkerData copyWith({
-    List<String>? selectedWork,
+    String? selectedJob,
+    List<String>? selectedSkills,
     List<String>? selectedAvailability,
     List<String>? selectedLanguages,
-    List<String>? customSkills,
+    List<String>? customJobs,
     List<String>? customLanguages,
     String? bio,
     String? education,
@@ -50,10 +53,11 @@ class WorkerData {
     String? profileImagePath,
   }) {
     return WorkerData(
-      selectedWork: selectedWork ?? this.selectedWork,
+      selectedJob: selectedJob ?? this.selectedJob,
+      selectedSkills: selectedSkills ?? this.selectedSkills,
       selectedAvailability: selectedAvailability ?? this.selectedAvailability,
       selectedLanguages: selectedLanguages ?? this.selectedLanguages,
-      customSkills: customSkills ?? this.customSkills,
+      customJobs: customJobs ?? this.customJobs,
       customLanguages: customLanguages ?? this.customLanguages,
       bio: bio ?? this.bio,
       education: education ?? this.education,
@@ -74,12 +78,13 @@ class WorkerProvider extends ChangeNotifier {
   WorkerData? get workerData => _workerData;
 
   void createProfile({
-    required List<String> selectedWork,
+    required String selectedJob,
+    required List<String> selectedSkills,
     required List<String> selectedAvailability,
     required List<String> selectedLanguages,
-    required List<String> customSkills,
+    required List<String> customJobs,
     required List<String> customLanguages,
-    /*required*/ String bio = '',
+    String bio = '',
     String education = '',
     String experience = '',
     String projects = '',
@@ -90,10 +95,11 @@ class WorkerProvider extends ChangeNotifier {
     String profileImagePath = '',
   }) {
     _workerData = WorkerData(
-      selectedWork: selectedWork,
+      selectedJob: selectedJob,
+      selectedSkills: selectedSkills,
       selectedAvailability: selectedAvailability,
       selectedLanguages: selectedLanguages,
-      customSkills: customSkills,
+      customJobs: customJobs,
       customLanguages: customLanguages,
       bio: bio,
       education: education,
@@ -109,10 +115,11 @@ class WorkerProvider extends ChangeNotifier {
   }
 
   void updateProfile({
-    List<String>? selectedWork,
+    String? selectedJob,
+    List<String>? selectedSkills,
     List<String>? selectedAvailability,
     List<String>? selectedLanguages,
-    List<String>? customSkills,
+    List<String>? customJobs,
     List<String>? customLanguages,
     String? bio,
     String? education,
@@ -126,10 +133,11 @@ class WorkerProvider extends ChangeNotifier {
   }) {
     if (_workerData != null) {
       _workerData = _workerData!.copyWith(
-        selectedWork: selectedWork,
+        selectedJob: selectedJob,
+        selectedSkills: selectedSkills,
         selectedAvailability: selectedAvailability,
         selectedLanguages: selectedLanguages,
-        customSkills: customSkills,
+        customJobs: customJobs,
         customLanguages: customLanguages,
         bio: bio,
         education: education,
@@ -142,14 +150,35 @@ class WorkerProvider extends ChangeNotifier {
         profileImagePath: profileImagePath,
       );
       notifyListeners();
+    } else {
+      // إذا كان _workerData null، قم بإنشاء بيانات جديدة
+      _workerData = WorkerData(
+        selectedJob: selectedJob ?? '',
+        selectedSkills: selectedSkills ?? [],
+        selectedAvailability: selectedAvailability ?? [],
+        selectedLanguages: selectedLanguages ?? [],
+        customJobs: customJobs ?? [],
+        customLanguages: customLanguages ?? [],
+        bio: bio ?? '',
+        education: education ?? '',
+        experience: experience ?? '',
+        projects: projects ?? '',
+        fullName: fullName ?? '',
+        email: email ?? '',
+        phone: phone ?? '',
+        coverImagePath: coverImagePath ?? '',
+        profileImagePath: profileImagePath ?? '',
+      );
+      notifyListeners();
     }
   }
 
   void updateWorkerData({
-    List<String>? selectedWork,
+    String? selectedJob,
+    List<String>? selectedSkills,
     List<String>? selectedAvailability,
     List<String>? selectedLanguages,
-    List<String>? customSkills,
+    List<String>? customJobs,
     List<String>? customLanguages,
     String? bio,
     String? education,
@@ -163,11 +192,12 @@ class WorkerProvider extends ChangeNotifier {
   }) {
     if (_workerData != null) {
       _workerData = WorkerData(
-        selectedWork: selectedWork ?? _workerData!.selectedWork,
+        selectedJob: selectedJob ?? _workerData!.selectedJob,
+        selectedSkills: selectedSkills ?? _workerData!.selectedSkills,
         selectedAvailability:
             selectedAvailability ?? _workerData!.selectedAvailability,
         selectedLanguages: selectedLanguages ?? _workerData!.selectedLanguages,
-        customSkills: customSkills ?? _workerData!.customSkills,
+        customJobs: customJobs ?? _workerData!.customJobs,
         customLanguages: customLanguages ?? _workerData!.customLanguages,
         bio: bio ?? _workerData!.bio,
         education: education ?? _workerData!.education,

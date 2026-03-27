@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import '../background.dart';
+import '../shared_pages/background.dart';
 import '../models/JobModel.dart';
 import 'package:provider/provider.dart';
 import '../providers/RequestProvider.dart';
 import '../models/RequestModel.dart';
 import 'bottomBarWorker.dart';
-import 'package:brigdeWork_app/Routes.dart';
+import 'package:brigdeWork_app/shared_pages/Routes.dart';
 
 class Theirprofile extends StatefulWidget {
   final JobModel worker;

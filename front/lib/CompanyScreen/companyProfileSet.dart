@@ -1,7 +1,10 @@
 import 'package:brigdeWork_app/CompanyScreen/profileCompany.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import '../background.dart';
+import '../shared_pages/background.dart';
+import 'package:provider/provider.dart';
+import '../models/CompanyModel.dart';
+import '../providers/CompanyProvider.dart';
 
 class CompanyProfileSet extends StatefulWidget {
   const CompanyProfileSet({super.key});
@@ -11,16 +14,22 @@ class CompanyProfileSet extends StatefulWidget {
 }
 
 class _CompanyProfileSetState extends State<CompanyProfileSet> {
-  // تغيير من String? إلى Set<String> للسماح باختيار أكثر من skill
-  Set<String> selectedWork = {};
+  String? selectedIndustry;
   Set<String> selectedAvailability = {};
-  Set<String> selectedLanguage = {};
+  Set<String> selectedLanguages = {};
+  final TextEditingController _descriptionController = TextEditingController();
 
-  // إضافة متغير للتحكم في نص الـ Bio
-  final TextEditingController _bioController = TextEditingController();
+  List<String> customIndustries = [];
+  List<String> customLanguages = [];
 
-  List<String> workTypes = ["Cooking", "Waiter", "Delivery", "UI/UX Design"];
-  List<String> availabilityTypes = [
+  List<String> industryTypes = [
+    "Cooking",
+    "Waiter",
+    "Delivery",
+    "UI/UX Design",
+  ];
+
+  List<String> Availability = [
     "morning",
     "afternoon",
     "evening",
@@ -30,22 +39,73 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
     "part time",
     "full time",
   ];
-  List<String> Languages = ["English", "Arabic", "French"];
-  List<String> customSkills = [];
-  List<String> customLanguages = [];
 
-  void _addNewSkill() {
-    TextEditingController skillController = TextEditingController();
+  List<String> Languages = ["English", "Arabic", "French"];
+
+  bool _validateInputs() {
+    if (selectedIndustry == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select your company industry'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+      return false;
+    }
+
+    if (selectedAvailability.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select at least one availability choice'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+      return false;
+    }
+
+    if (selectedLanguages.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please select at least one language'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+        ),
+      );
+      return false;
+    }
+
+    return true;
+  }
+
+  void _addNewIndustry() {
+    TextEditingController industryController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add New Skill'),
+          title: const Text('Add New Industry'),
           content: TextField(
-            controller: skillController,
+            controller: industryController,
             decoration: const InputDecoration(
-              hintText: 'Enter skill name',
+              hintText: 'Enter industry name',
               border: OutlineInputBorder(),
             ),
             autofocus: true,
@@ -57,9 +117,14 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (skillController.text.isNotEmpty) {
+                String newIndustry = industryController.text.trim();
+
+                if (newIndustry.isNotEmpty) {
                   setState(() {
-                    customSkills.add(skillController.text);
+                    if (!customIndustries.contains(newIndustry)) {
+                      customIndustries.add(newIndustry);
+                    }
+                    selectedIndustry = newIndustry;
                   });
                   Navigator.pop(context);
                 }
@@ -100,9 +165,14 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (languageController.text.isNotEmpty) {
+                String newLanguage = languageController.text.trim();
+
+                if (newLanguage.isNotEmpty) {
                   setState(() {
-                    customLanguages.add(languageController.text);
+                    if (!customLanguages.contains(newLanguage)) {
+                      customLanguages.add(newLanguage);
+                    }
+                    selectedLanguages.add(newLanguage);
                   });
                   Navigator.pop(context);
                 }
@@ -123,7 +193,6 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = (screenWidth - 40 - 30) / 4;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -138,7 +207,7 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
                 margin: const EdgeInsets.only(top: 71),
                 width: double.infinity,
                 child: const Text(
-                  "Set up your profile",
+                  "Set up your company profile",
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
                   textAlign: TextAlign.center,
                 ),
@@ -146,7 +215,7 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
               Container(
                 width: double.infinity,
                 child: const Text(
-                  "It's quick and easy. You can edit this later.",
+                  "Tell us about your company. You can edit this later.",
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
@@ -154,165 +223,222 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
               const Divider(color: Colors.grey, thickness: 1.0, height: 30.0),
 
               Expanded(
-                child: Container(
-                  width: double.infinity,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "What kind of workers you're looking for?",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // مجال الشركة (جبري)
+                      const Text(
+                        "What industry does your company operate in?",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            // المهارات الأساسية
-                            ...workTypes.map((work) {
-                              final isSelected = selectedWork.contains(work);
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedWork.remove(work);
-                                    } else {
-                                      selectedWork.add(work);
-                                    }
-                                  });
-                                },
-                                child: Card(
-                                  color: isSelected
-                                      ? HexColor("#4F46E5")
-                                      : HexColor("#D9D9D9"),
-                                  child: Container(
-                                    height: 30,
-                                    width: 100,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      work,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-
-                            // المهارات المخصصة
-                            ...customSkills.map((skill) {
-                              final isSelected = selectedWork.contains(skill);
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    if (isSelected) {
-                                      selectedWork.remove(skill);
-                                    } else {
-                                      selectedWork.add(skill);
-                                    }
-                                  });
-                                },
-                                child: Card(
-                                  color: isSelected
-                                      ? HexColor("#4F46E5")
-                                      : HexColor("#D9D9D9"),
-                                  child: Container(
-                                    height: 30,
-                                    width: 100,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      skill,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-
-                            // زر Add Skill
-                            GestureDetector(
-                              onTap: _addNewSkill,
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ...industryTypes.map((industry) {
+                            final isSelected = selectedIndustry == industry;
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedIndustry = null;
+                                  } else {
+                                    selectedIndustry = industry;
+                                  }
+                                });
+                              },
                               child: Card(
-                                color: HexColor("#D9D9D9"),
+                                color: isSelected
+                                    ? HexColor("#4F46E5")
+                                    : HexColor("#D9D9D9"),
                                 child: Container(
                                   height: 30,
-                                  width: 70,
+                                  width: 90,
                                   alignment: Alignment.center,
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add,
+                                  child: Text(
+                                    industry,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+
+                          ...customIndustries.map((industry) {
+                            final isSelected = selectedIndustry == industry;
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedIndustry = null;
+                                  } else {
+                                    selectedIndustry = industry;
+                                  }
+                                });
+                              },
+                              child: Card(
+                                color: isSelected
+                                    ? HexColor("#4F46E5")
+                                    : HexColor("#D9D9D9"),
+                                child: Container(
+                                  height: 30,
+                                  width: 90,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    industry,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+
+                          GestureDetector(
+                            onTap: _addNewIndustry,
+                            child: Card(
+                              color: HexColor("#D9D9D9"),
+                              child: Container(
+                                height: 30,
+                                width: 70,
+                                alignment: Alignment.center,
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add,
+                                      color: Colors.black,
+                                      size: 14,
+                                    ),
+                                    SizedBox(width: 2),
+                                    Text(
+                                      "Add",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
                                         color: Colors.black,
-                                        size: 14,
                                       ),
-                                      SizedBox(width: 2),
-                                      Text(
-                                        "Add",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const Divider(
+                        color: Colors.black,
+                        thickness: 0.5,
+                        height: 20,
+                      ),
+
+                      // أوقات العمل (جبري)
+                      const Text(
+                        "Availability",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: Availability.map((availability) {
+                          final isSelected = selectedAvailability.contains(
+                            availability,
+                          );
+                          return SizedBox(
+                            width: (screenWidth - 40 - 36) / 4,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected) {
+                                    selectedAvailability.remove(availability);
+                                  } else {
+                                    selectedAvailability.add(availability);
+                                  }
+                                });
+                              },
+                              child: Card(
+                                color: isSelected
+                                    ? HexColor("#4F46E5")
+                                    : HexColor("#D9D9D9"),
+                                child: Container(
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    availability,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        }).toList(),
+                      ),
 
-                        const Divider(
-                          color: Colors.black,
-                          thickness: 0.5,
-                          height: 20,
-                        ),
+                      const Divider(
+                        color: Colors.black,
+                        thickness: 0.5,
+                        height: 20,
+                      ),
 
-                        const Text(
-                          "Availability",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      // لغة التواصل (جبري)
+                      const Text(
+                        "Communication language",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
                         ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: availabilityTypes.map((availability) {
-                            final isSelected = selectedAvailability.contains(
-                              availability,
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: [
+                          ...Languages.map((language) {
+                            final isSelected = selectedLanguages.contains(
+                              language,
                             );
                             return SizedBox(
-                              width: itemWidth,
+                              width: (screenWidth - 40 - 36) / 4,
                               child: GestureDetector(
                                 onTap: () {
                                   setState(() {
                                     if (isSelected) {
-                                      selectedAvailability.remove(availability);
+                                      selectedLanguages.remove(language);
                                     } else {
-                                      selectedAvailability.add(availability);
+                                      selectedLanguages.add(language);
                                     }
                                   });
                                 },
@@ -324,10 +450,10 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
                                     height: 30,
                                     alignment: Alignment.center,
                                     child: Text(
-                                      availability,
+                                      language,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 10,
                                         fontWeight: FontWeight.w600,
                                         color: isSelected
                                             ? Colors.white
@@ -339,253 +465,233 @@ class _CompanyProfileSetState extends State<CompanyProfileSet> {
                               ),
                             );
                           }).toList(),
-                        ),
 
-                        const Divider(
-                          color: Colors.black,
-                          thickness: 0.5,
-                          height: 20,
-                        ),
-
-                        const Text(
-                          "Communication Skills",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
-                          children: [
-                            // اللغات الأساسية
-                            ...Languages.map((language) {
-                              final isSelected = selectedLanguage.contains(
-                                language,
-                              );
-                              return SizedBox(
-                                width: itemWidth,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (isSelected) {
-                                        selectedLanguage.remove(language);
-                                      } else {
-                                        selectedLanguage.add(language);
-                                      }
-                                    });
-                                  },
-                                  child: Card(
-                                    color: isSelected
-                                        ? HexColor("#4F46E5")
-                                        : HexColor("#D9D9D9"),
-                                    child: Container(
-                                      height: 30,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        language,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-
-                            // اللغات المخصصة
-                            ...customLanguages.map((language) {
-                              final isSelected = selectedLanguage.contains(
-                                language,
-                              );
-                              return SizedBox(
-                                width: itemWidth,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      if (isSelected) {
-                                        selectedLanguage.remove(language);
-                                      } else {
-                                        selectedLanguage.add(language);
-                                      }
-                                    });
-                                  },
-                                  child: Card(
-                                    color: isSelected
-                                        ? HexColor("#4F46E5")
-                                        : HexColor("#D9D9D9"),
-                                    child: Container(
-                                      height: 30,
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        language,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-
-                            // زر Add Language
-                            SizedBox(
-                              width: itemWidth,
+                          ...customLanguages.map((language) {
+                            final isSelected = selectedLanguages.contains(
+                              language,
+                            );
+                            return SizedBox(
+                              width: (screenWidth - 40 - 36) / 4,
                               child: GestureDetector(
-                                onTap: _addNewLanguage,
+                                onTap: () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      selectedLanguages.remove(language);
+                                    } else {
+                                      selectedLanguages.add(language);
+                                    }
+                                  });
+                                },
                                 child: Card(
-                                  color: HexColor("#D9D9D9"),
+                                  color: isSelected
+                                      ? HexColor("#4F46E5")
+                                      : HexColor("#D9D9D9"),
                                   child: Container(
                                     height: 30,
                                     alignment: Alignment.center,
-                                    child: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.add,
-                                          color: Colors.black,
-                                          size: 12,
-                                        ),
-                                        SizedBox(width: 2),
-                                        Text(
-                                          "Add",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ],
+                                    child: Text(
+                                      language,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.black,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            );
+                          }).toList(),
 
-                        const Divider(
-                          color: Colors.black,
-                          thickness: 0.5,
-                          height: 20,
-                        ),
-
-                        const Text(
-                          "Short Bio",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          width: double.infinity,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: HexColor("#D9D9D9"),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: TextField(
-                            controller: _bioController,
-                            maxLines: 5,
-                            minLines: 3,
-                            decoration: InputDecoration(
-                              hintText:
-                                  'tell us more about your company , shop ,....',
-                              hintStyle: TextStyle(
-                                color: Color(0xFF9CA3AF),
-                                fontSize: 14,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: 130,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color.fromRGBO(79, 70, 229, 1),
-                                      Color.fromRGBO(131, 125, 225, 1),
-                                      Color.fromRGBO(217, 217, 217, 1),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProfileCompany(
-                                          selectedWork: selectedWork.toList(),
-                                          selectedAvailability:
-                                              selectedAvailability.toList(),
-                                          selectedLanguages: selectedLanguage
-                                              .toList(),
-                                          customSkills: customSkills,
-                                          customLanguages: customLanguages,
-                                          bio: _bioController.text,
+                          SizedBox(
+                            width: (screenWidth - 40 - 36) / 4,
+                            child: GestureDetector(
+                              onTap: _addNewLanguage,
+                              child: Card(
+                                color: HexColor("#D9D9D9"),
+                                child: Container(
+                                  height: 30,
+                                  alignment: Alignment.center,
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.add,
+                                        color: Colors.black,
+                                        size: 12,
+                                      ),
+                                      SizedBox(width: 2),
+                                      Text(
+                                        "Add",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
                                         ),
                                       ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    shadowColor: Colors.transparent,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    "Next",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
 
-                        const SizedBox(height: 20),
-                      ],
-                    ),
+                      const Divider(
+                        color: Colors.black,
+                        thickness: 0.5,
+                        height: 20,
+                      ),
+
+                      // البايو (اختياري)
+                      const Text(
+                        "Short bio (Optional)",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: HexColor("#D9D9D9"),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: TextField(
+                          controller: _descriptionController,
+                          maxLines: 5,
+                          minLines: 3,
+                          decoration: InputDecoration(
+                            hintText:
+                                'Tell us about your company, mission, values...',
+                            hintStyle: TextStyle(
+                              color: Color(0xFF9CA3AF),
+                              fontSize: 14,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            width: 130,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color.fromRGBO(79, 70, 229, 1),
+                                    Color.fromRGBO(131, 125, 225, 1),
+                                    Color.fromRGBO(217, 217, 217, 1),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (_validateInputs()) {
+                                    final companyProvider =
+                                        Provider.of<CompanyProvider>(
+                                          context,
+                                          listen: false,
+                                        );
+
+                                    final existingData =
+                                        companyProvider.companyData;
+
+                                    if (existingData != null) {
+                                      companyProvider.updateProfile(
+                                        selectedIndustry: selectedIndustry!,
+                                        selectedAvailabilities:
+                                            selectedAvailability.toList(),
+                                        selectedLanguages: selectedLanguages
+                                            .toList(),
+                                        customIndustries: customIndustries,
+                                        customLanguages: customLanguages,
+                                        description:
+                                            _descriptionController.text,
+                                        companyName: existingData.companyName,
+                                        email: existingData.email,
+                                        phone: existingData.phone,
+                                        website: existingData.website,
+                                        coverImagePath:
+                                            existingData.coverImagePath,
+                                        logoImagePath:
+                                            existingData.logoImagePath,
+                                      );
+                                    } else {
+                                      companyProvider.createProfile(
+                                        selectedIndustry: selectedIndustry!,
+                                        selectedAvailabilities:
+                                            selectedAvailability.toList(),
+                                        requiredSkills: [],
+                                        selectedLanguages: selectedLanguages
+                                            .toList(),
+                                        customIndustries: customIndustries,
+                                        customLanguages: customLanguages,
+                                        description:
+                                            _descriptionController.text,
+                                        companyName: '',
+                                        email: '',
+                                        services: '',
+                                        achievements: '',
+                                        companyOverview: '',
+                                      );
+                                    }
+
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const ProfileCompany(),
+                                      ),
+                                    );
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Next",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
               ),

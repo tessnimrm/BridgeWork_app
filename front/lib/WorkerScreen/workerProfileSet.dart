@@ -1,10 +1,10 @@
 import 'package:brigdeWork_app/WorkerScreen/profileWorker.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
-import '../background.dart';
+import '../shared_pages/background.dart';
 import 'package:provider/provider.dart';
 import '../models/WorkerModel.dart';
-import 'package:brigdeWork_app/providers/WorkerProvider.dart';
+import '../providers/WorkerProvider.dart';
 
 class WorkerProfileSet extends StatefulWidget {
   const WorkerProfileSet({super.key});
@@ -14,15 +14,20 @@ class WorkerProfileSet extends StatefulWidget {
 }
 
 class _WorkerProfileSetState extends State<WorkerProfileSet> {
-  Set<String> selectedWork = {};
+  String? selectedJob; // تغيير من Set إلى String واحد
   Set<String> selectedAvailability = {};
   Set<String> selectedLanguage = {};
   final TextEditingController _bioController = TextEditingController();
 
-  List<String> customSkills = [];
+  List<String> customJobs = []; // تغيير من customSkills إلى customJobs
   List<String> customLanguages = [];
 
-  List<String> workTypes = ["Cooking", "Waiter", "Delivery", "UI/UX Design"];
+  List<String> jobTypes = [
+    "Cooking",
+    "Waiter",
+    "Delivery",
+    "UI/UX Design",
+  ]; // تغيير من workTypes إلى jobTypes
   List<String> availabilityTypes = [
     "morning",
     "afternoon",
@@ -36,10 +41,11 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
   List<String> Languages = ["English", "Arabic", "French"];
 
   bool _validateInputs() {
-    if (selectedWork.isEmpty) {
+    if (selectedJob == null) {
+      // التحقق من وجود وظيفة محددة
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Please select at least one Work option'),
+          content: const Text('Please select a job'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
           shape: RoundedRectangleBorder(
@@ -89,18 +95,19 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
     return true;
   }
 
-  void _addNewSkill() {
-    TextEditingController skillController = TextEditingController();
+  void _addNewJob() {
+    // تغيير من _addNewSkill إلى _addNewJob
+    TextEditingController jobController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add New Skill'),
+          title: const Text('Add New Job'),
           content: TextField(
-            controller: skillController,
+            controller: jobController,
             decoration: const InputDecoration(
-              hintText: 'Enter skill name',
+              hintText: 'Enter job name',
               border: OutlineInputBorder(),
             ),
             autofocus: true,
@@ -112,16 +119,16 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
             ),
             ElevatedButton(
               onPressed: () {
-                String newSkill = skillController.text.trim();
+                String newJob = jobController.text.trim();
 
-                if (newSkill.isNotEmpty) {
+                if (newJob.isNotEmpty) {
                   setState(() {
-                    // ✅ إضافة المهارة إلى customSkills
-                    if (!customSkills.contains(newSkill)) {
-                      customSkills.add(newSkill);
+                    // إضافة الوظيفة إلى customJobs
+                    if (!customJobs.contains(newJob)) {
+                      customJobs.add(newJob);
                     }
-                    // ✅ اختيار المهارة تلقائياً (إضافتها إلى selectedWork)
-                    selectedWork.add(newSkill);
+                    // اختيار الوظيفة تلقائياً (تعيينها كوظيفة محددة)
+                    selectedJob = newJob;
                   });
                   Navigator.pop(context);
                 }
@@ -166,11 +173,11 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
 
                 if (newLanguage.isNotEmpty) {
                   setState(() {
-                    // ✅ إضافة اللغة إلى customLanguages
+                    // إضافة اللغة إلى customLanguages
                     if (!customLanguages.contains(newLanguage)) {
                       customLanguages.add(newLanguage);
                     }
-                    // ✅ اختيار اللغة تلقائياً (إضافتها إلى selectedLanguage)
+                    // اختيار اللغة تلقائياً (إضافتها إلى selectedLanguage)
                     selectedLanguage.add(newLanguage);
                   });
                   Navigator.pop(context);
@@ -227,7 +234,7 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        "What kind of work you're looking for?",
+                        "What job are you looking for?", // تغيير النص
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -238,15 +245,18 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          ...workTypes.map((work) {
-                            final isSelected = selectedWork.contains(work);
+                          // الوظائف الأساسية
+                          ...jobTypes.map((job) {
+                            final isSelected =
+                                selectedJob ==
+                                job; // تغيير المنطق للاختيار الفردي
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
                                   if (isSelected) {
-                                    selectedWork.remove(work);
+                                    selectedJob = null; // إلغاء الاختيار
                                   } else {
-                                    selectedWork.add(work);
+                                    selectedJob = job; // اختيار الوظيفة
                                   }
                                 });
                               },
@@ -259,7 +269,7 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                                   width: 90,
                                   alignment: Alignment.center,
                                   child: Text(
-                                    work,
+                                    job,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 11,
@@ -274,22 +284,18 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                             );
                           }).toList(),
 
-                          // المهارات المخصصة
-                          ...customSkills.map((skill) {
-                            final isSelected = selectedWork.contains(
-                              skill,
-                            ); // تغيير هنا
+                          // الوظائف المخصصة
+                          ...customJobs.map((job) {
+                            final isSelected =
+                                selectedJob ==
+                                job; // تغيير المنطق للاختيار الفردي
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
                                   if (isSelected) {
-                                    selectedWork.remove(
-                                      skill,
-                                    ); // إزالة إذا كانت محددة
+                                    selectedJob = null; // إلغاء الاختيار
                                   } else {
-                                    selectedWork.add(
-                                      skill,
-                                    ); // إضافة إذا لم تكن محددة
+                                    selectedJob = job; // اختيار الوظيفة
                                   }
                                 });
                               },
@@ -302,7 +308,7 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                                   width: 90,
                                   alignment: Alignment.center,
                                   child: Text(
-                                    skill,
+                                    job,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 11,
@@ -321,7 +327,7 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
 
                           // زر Add
                           GestureDetector(
-                            onTap: _addNewSkill,
+                            onTap: _addNewJob, // تغيير الدالة
                             child: Card(
                               color: HexColor("#D9D9D9"),
                               child: Container(
@@ -618,16 +624,50 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                                           listen: false,
                                         );
 
-                                    workerProvider.updateProfile(
-                                      selectedWork: selectedWork.toList(),
-                                      selectedAvailability: selectedAvailability
-                                          .toList(),
-                                      selectedLanguages: selectedLanguage
-                                          .toList(),
-                                      customSkills: customSkills,
-                                      customLanguages: customLanguages,
-                                      bio: _bioController.text,
-                                    );
+                                    final existingData =
+                                        workerProvider.workerData;
+
+                                    if (existingData != null) {
+                                      // تحديث البيانات الموجودة
+                                      workerProvider.updateProfile(
+                                        selectedJob: selectedJob!,
+                                        selectedSkills: existingData
+                                            .selectedSkills, // الاحتفاظ بالمهارات الموجودة
+                                        selectedAvailability:
+                                            selectedAvailability.toList(),
+                                        selectedLanguages: selectedLanguage
+                                            .toList(),
+                                        customJobs: customJobs,
+                                        customLanguages: customLanguages,
+                                        bio: _bioController.text,
+                                        fullName: existingData.fullName,
+                                        email: existingData.email,
+                                        phone: existingData.phone,
+                                        education: existingData.education,
+                                        experience: existingData.experience,
+                                        projects: existingData.projects,
+                                        coverImagePath:
+                                            existingData.coverImagePath,
+                                        profileImagePath:
+                                            existingData.profileImagePath,
+                                      );
+                                    } else {
+                                      // إنشاء بيانات جديدة
+                                      workerProvider.createProfile(
+                                        selectedJob: selectedJob!,
+                                        selectedSkills:
+                                            [], // قائمة فارغة للمهارات
+                                        selectedAvailability:
+                                            selectedAvailability.toList(),
+                                        selectedLanguages: selectedLanguage
+                                            .toList(),
+                                        customJobs: customJobs,
+                                        customLanguages: customLanguages,
+                                        bio: _bioController.text,
+                                        fullName: '', // سيتم تعبئتها لاحقاً
+                                        email: '', // سيتم تعبئتها لاحقاً
+                                      );
+                                    }
 
                                     Navigator.pushReplacement(
                                       context,
@@ -638,7 +678,6 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                                     );
                                   }
                                 },
-
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,

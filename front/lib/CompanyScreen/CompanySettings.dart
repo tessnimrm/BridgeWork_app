@@ -1,49 +1,55 @@
-import 'package:brigdeWork_app/WorkerScreen/LikedPageWorker.dart';
-import 'package:brigdeWork_app/WorkerScreen/RequestPageWorker.dart';
+import 'package:brigdeWork_app/CompanyScreen/editCompanyProfile.dart';
+import 'package:brigdeWork_app/CompanyScreen/bottomBarCompany.dart';
 import 'package:brigdeWork_app/shared_pages/changepassword.dart';
 import 'package:brigdeWork_app/shared_pages/choicepage.dart';
-import 'package:brigdeWork_app/WorkerScreen/editWorkerProfile.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import '../shared_pages/background.dart';
-import 'package:brigdeWork_app/WorkerScreen/bottomBarWorker.dart';
 import 'package:brigdeWork_app/shared_pages/Routes.dart';
 import 'package:brigdeWork_app/shared_pages/first_page.dart';
 import 'package:provider/provider.dart';
-import 'package:brigdeWork_app/providers/WorkerProvider.dart';
+import 'package:brigdeWork_app/providers/CompanyProvider.dart';
 import 'dart:io';
+import 'package:brigdeWork_app/CompanyScreen/LikedPageCompany.dart';
+import 'package:brigdeWork_app/CompanyScreen/RequestCompany.dart';
 
-class WorkerSettingsPage extends StatefulWidget {
-  const WorkerSettingsPage({super.key});
+class CompanySettingsPage extends StatefulWidget {
+  const CompanySettingsPage({super.key});
 
   @override
-  State<WorkerSettingsPage> createState() => _WorkerSettingsPageSetState();
+  State<CompanySettingsPage> createState() => _CompanySettingsPageState();
 }
 
-class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
+class _CompanySettingsPageState extends State<CompanySettingsPage> {
   String selectedLanguage = 'French';
 
   @override
   Widget build(BuildContext context) {
-    final workerProvider = Provider.of<WorkerProvider>(context);
-    final data = workerProvider.workerData;
+    final companyProvider = Provider.of<CompanyProvider>(context);
+    final data = companyProvider.companyData;
 
-    // ✅ تحديد صورة البروفايل
-    ImageProvider profileImage;
-    if (data?.profileImagePath != null && data!.profileImagePath.isNotEmpty) {
-      final file = File(data.profileImagePath);
+    // تحديد صورة الشعار
+    ImageProvider logoImage;
+    if (data?.logoImagePath != null && data!.logoImagePath.isNotEmpty) {
+      final file = File(data.logoImagePath);
       if (file.existsSync()) {
-        profileImage = FileImage(file);
+        logoImage = FileImage(file);
       } else {
-        profileImage = const AssetImage('lib/images/photo_2.jpg');
+        logoImage = const AssetImage('lib/images/photo_1.jpg');
       }
     } else {
-      profileImage = const AssetImage('lib/images/photo_2.jpg');
+      logoImage = const AssetImage('lib/images/photo_2.jpg');
     }
 
-    final fullName = (data?.fullName != null && data!.fullName.isNotEmpty)
-        ? data.fullName
-        : 'Your Name';
+    final companyName =
+        (data?.companyName != null && data!.companyName.isNotEmpty)
+        ? data.companyName
+        : 'Company Name';
+
+    final industry =
+        (data?.selectedIndustry != null && data!.selectedIndustry.isNotEmpty)
+        ? data.selectedIndustry
+        : '';
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -64,10 +70,7 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: profileImage,
-                      fit: BoxFit.cover,
-                    ),
+                    image: DecorationImage(image: logoImage, fit: BoxFit.cover),
                     borderRadius: BorderRadius.circular(100),
                     border: Border.all(color: Colors.white, width: 3),
                   ),
@@ -75,16 +78,17 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
               ),
               const SizedBox(height: 10),
               Text(
-                fullName,
+                companyName,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
-                data?.selectedJob ?? '',
-                style: const TextStyle(fontSize: 14),
-              ),
+              if (industry.isNotEmpty)
+                Text(
+                  industry,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -99,7 +103,7 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const EditProfileWorker(),
+                              builder: (context) => const EditCompanyProfile(),
                             ),
                           );
                           setState(() {});
@@ -181,7 +185,7 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Requestpage(),
+                              builder: (context) => const RequestPageCompany(),
                             ),
                           );
                         },
@@ -202,7 +206,7 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const Likedpage(),
+                              builder: (context) => const LikedPageCompany(),
                             ),
                           );
                         },
@@ -310,7 +314,7 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                "log out",
+                                "Log out",
                                 style: TextStyle(color: HexColor("#EB2C2C")),
                               ),
                             ],
@@ -325,15 +329,15 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomBar(
+      bottomNavigationBar: CustomBottomBarCompany(
         currentIndex: 3,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, Routes.Work);
+            Navigator.pushReplacementNamed(context, Routes.Hire);
           } else if (index == 1) {
             Navigator.pushReplacementNamed(context, Routes.MessagesPage);
           } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, Routes.workerProfile);
+            Navigator.pushReplacementNamed(context, Routes.companyProfile);
           } else if (index == 3) {
             // Already on settings
           }
@@ -359,11 +363,11 @@ class _WorkerSettingsPageSetState extends State<WorkerSettingsPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                final workerProvider = Provider.of<WorkerProvider>(
+                final companyProvider = Provider.of<CompanyProvider>(
                   context,
                   listen: false,
                 );
-                workerProvider.clearProfile();
+                companyProvider.clearProfile();
 
                 Navigator.of(context).popUntil((route) => route.isFirst);
 

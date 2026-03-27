@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import './models/modelsChat.dart';
+import '../WorkerScreen/bottomBarWorker.dart';
+import 'shared_pages/Routes.dart';
 
 class ChatPage extends StatefulWidget {
   final String name;
@@ -16,7 +18,11 @@ class _ChatPageState extends State<ChatPage> {
 
   List<Message> messages = [
     Message(text: "Hello! How are you?", isMe: false, time: DateTime.now()),
-    Message(text: "Hi! I'm good, thanks. What about you?", isMe: true, time: DateTime.now()),
+    Message(
+      text: "Hi! I'm good, thanks. What about you?",
+      isMe: true,
+      time: DateTime.now(),
+    ),
   ];
 
   void sendMessage() {
@@ -52,7 +58,7 @@ class _ChatPageState extends State<ChatPage> {
                   backgroundImage: widget.imageUrl != null
                       ? NetworkImage(widget.imageUrl!)
                       : const AssetImage('assets/images/default_avatar.png')
-                          as ImageProvider,
+                            as ImageProvider,
                 ),
                 const SizedBox(width: 10),
                 Text(
@@ -78,7 +84,9 @@ class _ChatPageState extends State<ChatPage> {
                 final isMe = msg.isMe;
 
                 return Align(
-                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isMe
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -130,7 +138,9 @@ class _ChatPageState extends State<ChatPage> {
                                     "${msg.time.hour.toString().padLeft(2, '0')}:${msg.time.minute.toString().padLeft(2, '0')}",
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: isMe ? Colors.white70 : Colors.black54,
+                                      color: isMe
+                                          ? Colors.white70
+                                          : Colors.black54,
                                     ),
                                   ),
                                 ],
@@ -174,7 +184,10 @@ class _ChatPageState extends State<ChatPage> {
                         borderRadius: BorderRadius.circular(25),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 0,
+                      ),
                     ),
                   ),
                 ),
@@ -195,6 +208,19 @@ class _ChatPageState extends State<ChatPage> {
           ),
         ],
       ),
+      bottomNavigationBar: CustomBottomBar(
+        currentIndex: 1,
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, Routes.Work);
+          } else if (index == 1) {
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, Routes.workerProfile);
+          } else if (index == 3) {
+            Navigator.pushNamed(context, Routes.workerSettings);
+          }
+        },
+      ),
     );
   }
 }
@@ -207,7 +233,9 @@ class _MessageTailPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = isMe ? const Color.fromARGB(255, 162, 130, 215) : Colors.grey.shade300
+      ..color = isMe
+          ? const Color.fromARGB(255, 162, 130, 215)
+          : Colors.grey.shade300
       ..style = PaintingStyle.fill;
 
     final path = Path();
