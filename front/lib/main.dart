@@ -11,7 +11,7 @@ import 'package:brigdeWork_app/CompanyScreen/main_pagehire.dart';
 import 'package:provider/provider.dart';
 import 'package:brigdeWork_app/providers/WorkerProvider.dart';
 import 'package:brigdeWork_app/providers/LikedJobsProvider.dart';
-import '../providers/RequestProvider.dart';
+import 'package:brigdeWork_app/providers/RequestProvider.dart';
 import 'package:brigdeWork_app/message_page.dart';
 import 'package:brigdeWork_app/providers/CompanyProvider.dart';
 import 'package:brigdeWork_app/CompanyScreen/CompanySettings.dart';
@@ -19,6 +19,8 @@ import 'package:brigdeWork_app/CompanyScreen/editCompanyProfile.dart';
 import 'package:brigdeWork_app/providers/UserProvider.dart';
 import 'package:brigdeWork_app/providers/CompanyLiked.dart';
 import 'package:brigdeWork_app/providers/CompanyRequest.dart';
+import 'shared_pages/signup_page.dart';
+import 'shared_pages/login_page.dart';
 
 void main() {
   runApp(
@@ -29,11 +31,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => CompanyProvider()),
         ChangeNotifierProvider(create: (_) => LikedJobsProvider()),
         ChangeNotifierProvider(create: (_) => RequestsProvider()),
-        ChangeNotifierProvider(create: (_) => CompanyProvider()),
         ChangeNotifierProvider(create: (_) => CompanyLikedWorkersProvider()),
         ChangeNotifierProvider(create: (_) => CompanyRequestsProvider()),
       ],
-
       child: const MyApp(),
     ),
   );
@@ -47,15 +47,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'BridgeWork',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/firstPage',
-      routes: {Routes.choicepage: (context) => const Choicepage()},
+      home: const Realone(),
+      routes: {
+        Routes.choicepage: (context) => const Choicepage(),
+        '/login': (context) => const Login(),
+        '/signup': (context) => const Signup(),
+      },
       onGenerateRoute: (settings) {
         if (settings.name == '/firstPage') {
           return MaterialPageRoute(builder: (context) => const Realone());
         } else if (settings.name == Routes.MessagesPage) {
           return MaterialPageRoute(builder: (context) => const MessagesPage());
         }
-        // صفحات العامل
+        // Worker pages
         else if (settings.name == Routes.workerProfile) {
           return MaterialPageRoute(builder: (context) => const ProfileWorker());
         } else if (settings.name == Routes.workerSettings) {
@@ -70,7 +74,7 @@ class MyApp extends StatelessWidget {
           final args = settings.arguments as Map?;
           return MaterialPageRoute(builder: (context) => Work());
         }
-        // صفحات الشركة
+        // Company pages
         else if (settings.name == Routes.companyProfile) {
           return MaterialPageRoute(
             builder: (context) => const ProfileCompany(),

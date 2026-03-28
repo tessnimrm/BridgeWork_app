@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class Botton extends StatelessWidget {
   final String text;
   final Color textColor;
-  final VoidCallback onPressed;
+  final Function()? onPressed; 
+  
   const Botton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,  
     this.textColor = Colors.black,
   });
+  
   @override
   Widget build(ctx) {
     return ClipRRect(
@@ -28,7 +30,7 @@ class Botton extends StatelessWidget {
           ),
         ),
         child: ElevatedButton(
-          onPressed: onPressed,
+          onPressed: onPressed, 
           style: ElevatedButton.styleFrom(
             minimumSize: const Size(320, 48),
             backgroundColor: Colors.transparent,

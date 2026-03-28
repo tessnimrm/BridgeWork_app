@@ -14,15 +14,16 @@ import 'package:brigdeWork_app/providers/CompanyLiked.dart';
 import 'package:brigdeWork_app/providers/CompanyRequest.dart';
 import 'package:brigdeWork_app/CompanyScreen/theirProfileCompany.dart';
 import 'dart:io';
+import '../guestScreen/guestwork.dart';
 
-class Hire extends StatefulWidget {
-  const Hire({super.key});
+class Hireg extends StatefulWidget {
+  const Hireg({super.key});
 
   @override
-  State<Hire> createState() => _HireState();
+  State<Hireg> createState() => _HiregState();
 }
 
-class _HireState extends State<Hire> {
+class _HiregState extends State<Hireg> {
   final List<Map<String, dynamic>> jobs = [
     {
       'title': 'Sarah Johnson',
@@ -108,7 +109,6 @@ class _HireState extends State<Hire> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: const EdgeInsets.only(bottom: 120),
             child: SafeArea(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -242,6 +242,7 @@ class _HireState extends State<Hire> {
                           final isLiked = likedProvider.isLiked(workerJob);
                           final requestStatus = requestsProvider
                               .getRequestStatus(job['title'] as String);
+
                           return Cards(
                             textt: job['title'] as String,
                             avatar: NetworkImage(job['profileImage'] as String),
@@ -281,7 +282,42 @@ class _HireState extends State<Hire> {
                           );
                         }).toList(),
                       ),
+                      const SizedBox(height: 100),
                     ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Full restart navigation to guest Work mode
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => Workg()), // no const!
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 114, 110, 202),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 60,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  elevation: 10,
+                ),
+                child: const Text(
+                  "Switch to Work mode",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
               ),

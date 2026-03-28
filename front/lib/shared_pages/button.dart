@@ -3,20 +3,22 @@ import 'package:flutter/material.dart';
 class Botton extends StatelessWidget {
   final String text;
   final Color textColor;
-  final VoidCallback onPressed;
+  final Function()? onPressed;
+  
   const Botton({
     super.key,
     required this.text,
-    required this.onPressed,
+    this.onPressed,
     this.textColor = Colors.black,
   });
+  
   @override
-  Widget build(ctx) {
+  Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: 320,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color.fromRGBO(79, 70, 229, 1),
@@ -38,15 +40,12 @@ class Botton extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: Container(
-            alignment: Alignment.center,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: textColor,
-                fontSize: 16,
-              ),
+          child: Text(
+            text,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: textColor,
+              fontSize: 16,
             ),
           ),
         ),

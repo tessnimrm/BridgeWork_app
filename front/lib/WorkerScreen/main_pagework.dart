@@ -5,13 +5,12 @@ import 'dart:io';
 import '../widgets/background.dart';
 import '../widgets/categories.dart';
 import '../widgets/cards.dart';
-import '../CompanyScreen/main_pagehire.dart';
 import '../WorkerScreen/bottomBarWorker.dart';
+import '../shared_pages/Routes.dart';
 import '../providers/WorkerProvider.dart';
 import '../providers/LikedJobsProvider.dart';
 import '../models/JobModel.dart';
-import 'package:brigdeWork_app/shared_pages/Routes.dart';
-import 'package:brigdeWork_app/WorkerScreen/theirProfileWorker.dart';
+import '../WorkerScreen/theirProfileWorker.dart';
 
 class Work extends StatefulWidget {
   const Work({super.key});
@@ -94,7 +93,7 @@ class _WorkState extends State<Work> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
-                          const SizedBox(width: 30),
+                          const SizedBox(width: 40),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
@@ -120,7 +119,7 @@ class _WorkState extends State<Work> {
                               ),
                             ],
                           ),
-                          const SizedBox(width: 100),
+                          const SizedBox(width: 130),
                           CircleAvatar(
                             radius: 30,
                             backgroundColor: const Color.fromARGB(
@@ -133,9 +132,7 @@ class _WorkState extends State<Work> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 30),
-
                       Container(
                         height: 48,
                         width: 340,
@@ -164,9 +161,7 @@ class _WorkState extends State<Work> {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
                       SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Wrap(
@@ -179,7 +174,7 @@ class _WorkState extends State<Work> {
                             ),
                             Categories(
                               text: "Hospitality",
-                              imagePath: "lib/images/hospitality.png",
+                              imagePath: "lib/images/hospitalityy.png",
                             ),
                             Categories(
                               text: "Tech&Digital",
@@ -191,7 +186,7 @@ class _WorkState extends State<Work> {
                             ),
                             Categories(
                               text: "Business",
-                              imagePath: "lib/images/buuisness.png",
+                              imagePath: "lib/images/buusiness.png",
                             ),
                             const SizedBox(width: 10),
                           ],
@@ -222,8 +217,9 @@ class _WorkState extends State<Work> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      Theirprofile(worker: job),
+                                  builder: (context) => Theirprofile(
+                                    worker: job,
+                                  ),
                                 ),
                               );
                             },
@@ -246,7 +242,7 @@ class _WorkState extends State<Work> {
           if (index == 0) {
             // stay
           } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, Routes.MessagesPage);
+            Navigator.pushReplacementNamed(context, '/messages');
           } else if (index == 2) {
             Navigator.pushReplacementNamed(context, Routes.workerProfile);
           } else if (index == 3) {
