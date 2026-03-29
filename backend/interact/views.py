@@ -6,7 +6,7 @@ from .models import Interested, Favorite
 from .serializers import InterestedSerializer, FavoriteSerializer
 from users.models import User
 from profiles.models import WorkerProfile, EmployerProfile
-from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
+#from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
 
 
 
@@ -187,7 +187,7 @@ def home_feed(request):
             ) | profiles.filter(
                 about_company__icontains=search
             )
-        serializer = EmployerProfileSerializer(profiles, many=True)
+      #  serializer = EmployerProfileSerializer(profiles, many=True)
 
     elif user.role == 'employer':
         profiles = WorkerProfile.objects.filter(
