@@ -11,7 +11,7 @@ from google.auth.transport import requests as google_requests
 from django.conf import settings
 from google.oauth2 import id_token
 from profiles.models import WorkerProfile, EmployerProfile
-from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
+#from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
 
 @api_view(['POST'])
 def register(request):
@@ -220,7 +220,7 @@ def guest_home(request):
             ) | profiles.filter(
                 about_company__icontains=search
             )
-        serializer = EmployerProfileSerializer(profiles, many=True)
+       # serializer = EmployerProfileSerializer(profiles, many=True)
 
     elif role == 'employer':
         profiles = WorkerProfile.objects.filter(
@@ -232,11 +232,11 @@ def guest_home(request):
             ) | profiles.filter(
                 bio__icontains=search
             )
-        serializer = WorkerProfileSerializer(profiles, many=True)
+        #serializer = WorkerProfileSerializer(profiles, many=True)
 
     return Response({
         'category': category,
-        'results' : serializer.data,
+     #   'results' : serializer.data,
         'note'    : 'Register to use Interested, Favorite and Chat'
     }, status=status.HTTP_200_OK)
 
