@@ -10,7 +10,7 @@ class WorkerProfile(models.Model):
   experience = models.TextField(blank=True)
   projects = models.TextField(blank=True)
   availability = models.CharField(max_length=100,blank=True)
-  languages = models.CharField(max_length=100,blank=True)
+  skills = models.CharField(max_length=100,blank=True)
 
   def __str__(self):
     return self.user.fullname
