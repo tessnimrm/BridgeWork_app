@@ -199,10 +199,10 @@ def home_feed(request):
             ) | profiles.filter(
                 bio__icontains=search
             )
-        serializer = WorkerProfileSerializer(profiles, many=True)
+         # serializer = WorkerProfileSerializer(profiles, many=True)
 
     return Response({
         'category': category,
-        'results' : serializer.data
+       # 'results' : serializer.data
     }, status=status.HTTP_200_OK)
 
