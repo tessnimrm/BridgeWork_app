@@ -7,6 +7,7 @@ from profiles.serializers import WorkerProfileSerializer,EmployerProfileSerializ
 from .models import Interested, Favorite
 from .serializers import InterestedSerializer, FavoriteSerializer
 from users.models import User
+from profiles.models import WorkerProfile, EmployerProfile
 
 
 
@@ -161,9 +162,10 @@ def home_feed(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
+    
     if not category:
         if user.categories:
-            category = user.categories[0]  
+            category = user.categories[0]  # أول category
         else:
             category = 'Tech&Digital'  # default
 
@@ -174,9 +176,9 @@ def home_feed(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    
+   
     if user.role == 'jobseeker':
-        profiles = EmployerProfileSerializer.objects.filter(
+        profiles = EmployerProfile.objects.filter(
             category__icontains=category
         )
         if search:
@@ -187,9 +189,9 @@ def home_feed(request):
             )
         serializer = EmployerProfileSerializer(profiles, many=True)
 
-    # employer → يشوف jobseekers
+    
     elif user.role == 'employer':
-        profiles = WorkerProfileSerializer.objects.filter(
+        profiles = WorkerProfile.objects.filter(
             category__icontains=category
         )
         if search:
