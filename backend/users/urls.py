@@ -11,5 +11,4 @@ urlpatterns = [
     path('guest/',views.guest_access, name='guest'),
     path('guest/set-role/', views.guest_set_role, name='guest_set_role'),
     path('guest/home/', views.guest_home,   name='guest_home'),
-    path('google/', views.google_login, name='google_login'),
 ]

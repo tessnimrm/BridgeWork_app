@@ -43,8 +43,8 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    new_password     = serializers.CharField(required=True, min_length=6)
-    confirm_password = serializers.CharField(required=True, min_length=6)
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, min_length=6)
 
 
 class SetRoleSerializer(serializers.Serializer):

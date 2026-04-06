@@ -10,31 +10,7 @@ class WorkerProfile(models.Model):
   experience = models.TextField(blank=True)
   projects = models.TextField(blank=True)
   availability = models.CharField(max_length=100,blank=True)
-  languages = models.CharField(max_length=100,blank=True)
-
-  def update_profile(self,bio,education,experience,projects,languages,availability) :
-   self.bio = bio
-   self.education = education
-   self.experience = experience
-   self.projects = projects
-   self.languages = languages
-   self.availability = availability
-   self.save()
-   
-  def upload_cv(self,file):
-   self.cv_file = file
-   self.save ()
-
-  def get_profile(self):
-   return {
-   "bio":self.bio ,
-  "education" :self.education ,
-   "experience": self.experience, 
-   "projects":self.projects ,
-   "languages":self.languages ,
-   "availability":self.availability,
-   "cv_file":self.cv_file.url if self.cv_file else None # to know if cv is there or no so it can display it
- }
+  skills = models.CharField(max_length=100,blank=True)
 
   def __str__(self):
     return self.user.fullname
@@ -48,26 +24,6 @@ class EmployerProfile(models.Model):
   services = models.TextField(blank=True)
   achievements = models.TextField(blank=True)
   availability_needed = models.CharField(max_length=100,blank=True)
-
-  def update_profile(self,company_name,company_logo,services,about_company,achievements, availability_needed) :
-    self.company_name = company_name
-    self.company_logo = company_logo
-    self.services  = services
-    self.about_company= about_company
-    self.achievements = achievements
-    self. availability_needed =  availability_needed
-    self.save()
-   
-
-  def get_profile(self):
-    return {
-      "company_name":self.company_name ,
-     "about_company" :self.about_company ,
-        "services": self.services, 
-     "achievements":self.achievements ,
-     "availability_needed":self.availability_needed ,
-     "company_logo ":self.company_logo.url if self.company_logo else None # to know if cv is there or no so it can display it
- }
 
   def __str__(self):
     return self.company_name

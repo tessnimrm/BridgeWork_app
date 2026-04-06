@@ -7,6 +7,5 @@ urlpatterns = [
     path('favorite/<int:user_id>/',views.add_favorite,name='add_favorite'),
     path('favorite/<int:user_id>/remove/', views.remove_favorite,name='remove_favorite'),
     path('favorites/',views.list_favorites,name='list_favorites'),
-    path('interested/', views.list_interested, name='list_interested'),
-    path('home/', views.home_feed, name='home_feed'),
+    
 ]

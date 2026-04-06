@@ -7,11 +7,6 @@ from .models import User
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from google.auth.transport import requests as google_requests
-from django.conf import settings
-from google.oauth2 import id_token
-from profiles.models import WorkerProfile, EmployerProfile
-#from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
 
 @api_view(['POST'])
 def register(request):
@@ -107,6 +102,7 @@ def logout(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def change_password(request):
@@ -114,15 +110,16 @@ def change_password(request):
     serializer = ChangePasswordSerializer(data=data)
 
     if serializer.is_valid():
-        # 1. check passwords match
-        if data['new_password'] != data['confirm_password']:
+        user = request.user
+
+        # 1. check old password
+        if not user.check_password(data['old_password']):
             return Response(
-                {'error': 'Passwords do not match'},
+                {'error': 'Old password is wrong'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         # 2. set new password
-        user = request.user
         user.set_password(data['new_password'])
         user.save()
 
@@ -132,7 +129,6 @@ def change_password(request):
         )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 
@@ -186,110 +182,18 @@ def guest_set_role(request):
 @api_view(['GET'])
 def guest_home(request):
     role     = request.query_params.get('role', None)
-    category = request.query_params.get('category', 'Tech&Digital')
+    category = request.query_params.get('category', None)
     search   = request.query_params.get('search', None)
 
     if not role:
         return Response(
-            {'error': 'Please choose work or hire'},
+            {'error': 'Please set your role first'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    if role not in ['jobseeker', 'employer']:
-        return Response(
-            {'error': 'Role must be jobseeker or employer'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    valid_categories = ['Tech&Digital', 'Retail', 'Hospitality', 'Education']
-    if category not in valid_categories:
-        return Response(
-            {'error': f'Category must be one of: {valid_categories}'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-  
-
-    if role == 'jobseeker':
-        profiles = EmployerProfile.objects.filter(
-            category__icontains=category
-        )
-        if search:
-            profiles = profiles.filter(
-                company_name__icontains=search
-            ) | profiles.filter(
-                about_company__icontains=search
-            )
-       # serializer = EmployerProfileSerializer(profiles, many=True)
-
-    elif role == 'employer':
-        profiles = WorkerProfile.objects.filter(
-            category__icontains=category
-        )
-        if search:
-            profiles = profiles.filter(
-                user__fullname__icontains=search
-            ) | profiles.filter(
-                bio__icontains=search
-            )
-        #serializer = WorkerProfileSerializer(profiles, many=True)
-
+    # i need to change it to filter by category and search
     return Response({
-        'category': category,
-     #   'results' : serializer.data,
-        'note'    : 'Register to use Interested, Favorite and Chat'
+        'details': f'Browsing as guest ({role}) 👋',
+        'role'   : role,
+        'note'   : 'Register to use Interested, Favorite and Chat',
     }, status=status.HTTP_200_OK)
-
-
-
-@api_view(['POST'])
-def google_login(request):
-    token = request.data.get('token')
-
-    if not token:
-        return Response(
-            {'error': 'Token is required'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    try:
-        # 1. verify google token
-        google_info = id_token.verify_oauth2_token(
-            token,
-            google_requests.Request(),
-            settings.GOOGLE_CLIENT_ID
-        )
-
-        email    = google_info['email']
-        fullname = google_info.get('name', '')
-
-        # 2. get or create user
-        user, created = User.objects.get_or_create(
-            email=email,
-            defaults={
-                'username': email.split('@')[0],
-                'fullname': fullname,
-            }
-        )
-
-        # 3. generate token
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            'details' : 'Google login successful ✅',
-            'token'   : str(refresh.access_token),
-            'refresh' : str(refresh),
-            'created' : created,  # True = new user, False = existing user
-            'user'    : {
-                'id'      : user.id,
-                'email'   : user.email,
-                'username': user.username,
-                'fullname': user.fullname,
-                'role'    : user.role,
-            }
-        }, status=status.HTTP_200_OK)
-
-    except ValueError:
-        return Response(
-            {'error': 'Invalid Google token'},
-            status=status.HTTP_400_BAD_REQUEST
-        )

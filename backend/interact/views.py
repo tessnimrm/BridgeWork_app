@@ -5,8 +5,6 @@ from rest_framework import status
 from .models import Interested, Favorite
 from .serializers import InterestedSerializer, FavoriteSerializer
 from users.models import User
-from profiles.models import WorkerProfile, EmployerProfile
-#from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
 
 
 
@@ -83,14 +81,6 @@ def remove_interested(request, user_id):
             {'error': 'Interested not found'},
             status=status.HTTP_404_NOT_FOUND
         )
-    
-
-@api_view(['GET'])           
-@permission_classes([IsAuthenticated])
-def list_interested(request):
-    interests  = Interested.objects.filter(from_user=request.user)
-    serializer = InterestedSerializer(interests, many=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
@@ -153,56 +143,4 @@ def list_favorites(request):
     favorites  = Favorite.objects.filter(user=request.user)
     serializer = FavoriteSerializer(favorites, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def home_feed(request):
-    user     = request.user
-    category = request.query_params.get('category', 'Tech&Digital')
-    search   = request.query_params.get('search', None)
-
-    if not user.role:
-        return Response(
-            {'error': 'Please set your role first'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    valid_categories = ['Tech&Digital', 'Retail', 'Hospitality', 'Education']
-    if category not in valid_categories:
-        return Response(
-            {'error': f'Category must be one of: {valid_categories}'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    if user.role == 'jobseeker':
-        profiles = EmployerProfile.objects.filter(
-            category__icontains=category
-        )
-        if search:
-            profiles = profiles.filter(
-                company_name__icontains=search
-            ) | profiles.filter(
-                about_company__icontains=search
-            )
-      #  serializer = EmployerProfileSerializer(profiles, many=True)
-
-    elif user.role == 'employer':
-        profiles = WorkerProfile.objects.filter(
-            category__icontains=category
-        )
-        if search:
-            profiles = profiles.filter(
-                user__fullname__icontains=search
-            ) | profiles.filter(
-                bio__icontains=search
-            )
-         # serializer = WorkerProfileSerializer(profiles, many=True)
-
-    return Response({
-        'category': category,
-       # 'results' : serializer.data
-    }, status=status.HTTP_200_OK)
 
