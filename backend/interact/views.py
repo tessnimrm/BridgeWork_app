@@ -165,7 +165,7 @@ def home_feed(request):
     
     if not category:
         if user.categories:
-            category = user.categories[0]  # أول category
+            category = user.categories[0]  
         else:
             category = 'Tech&Digital'  # default
 
