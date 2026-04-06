@@ -14,12 +14,12 @@ class WorkerProfileSet extends StatefulWidget {
 }
 
 class _WorkerProfileSetState extends State<WorkerProfileSet> {
-  String? selectedJob; // تغيير من Set إلى String واحد
+  String? selectedJob;
   Set<String> selectedAvailability = {};
   Set<String> selectedLanguage = {};
   final TextEditingController _bioController = TextEditingController();
 
-  List<String> customJobs = []; // تغيير من customSkills إلى customJobs
+  List<String> customJobs = [];
   List<String> customLanguages = [];
 
   List<String> jobTypes = [
@@ -27,7 +27,7 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
     "Waiter",
     "Delivery",
     "UI/UX Design",
-  ]; // تغيير من workTypes إلى jobTypes
+  ];
   List<String> availabilityTypes = [
     "morning",
     "afternoon",
@@ -42,61 +42,39 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
 
   bool _validateInputs() {
     if (selectedJob == null) {
-      // التحقق من وجود وظيفة محددة
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please select a job'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(10),
-        ),
-      );
+      _showSnackBar('Please select a job');
       return false;
     }
 
     if (selectedAvailability.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Please select at least one availability option'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(10),
-        ),
-      );
+      _showSnackBar('Please select at least one availability option');
       return false;
     }
 
     if (selectedLanguage.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Please select at least one communication skill option',
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(10),
-        ),
-      );
+      _showSnackBar('Please select at least one communication skill option');
       return false;
     }
 
     return true;
   }
 
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(10),
+      ),
+    );
+  }
+
   void _addNewJob() {
-    // تغيير من _addNewSkill إلى _addNewJob
     TextEditingController jobController = TextEditingController();
 
     showDialog(
@@ -120,14 +98,11 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
             ElevatedButton(
               onPressed: () {
                 String newJob = jobController.text.trim();
-
                 if (newJob.isNotEmpty) {
                   setState(() {
-                    // إضافة الوظيفة إلى customJobs
                     if (!customJobs.contains(newJob)) {
                       customJobs.add(newJob);
                     }
-                    // اختيار الوظيفة تلقائياً (تعيينها كوظيفة محددة)
                     selectedJob = newJob;
                   });
                   Navigator.pop(context);
@@ -170,14 +145,11 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
             ElevatedButton(
               onPressed: () {
                 String newLanguage = languageController.text.trim();
-
                 if (newLanguage.isNotEmpty) {
                   setState(() {
-                    // إضافة اللغة إلى customLanguages
                     if (!customLanguages.contains(newLanguage)) {
                       customLanguages.add(newLanguage);
                     }
-                    // اختيار اللغة تلقائياً (إضافتها إلى selectedLanguage)
                     selectedLanguage.add(newLanguage);
                   });
                   Navigator.pop(context);
@@ -199,44 +171,73 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isSmallScreen = screenWidth < 400;
+    
+    // Responsive sizes
+    final titleFontSize = isSmallScreen ? 24.0 : 28.0;
+    final subtitleFontSize = isSmallScreen ? 12.0 : 14.0;
+    final sectionFontSize = isSmallScreen ? 12.0 : 14.0;
+    final buttonWidth = screenWidth * 0.35;
+    final cardWidth = (screenWidth - 60) / (isSmallScreen ? 3 : 4);
+    final topMargin = screenHeight * 0.05;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: GradientBackground(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          width: double.infinity,
+        child: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                margin: const EdgeInsets.only(top: 71),
-                width: double.infinity,
-                child: const Text(
-                  "Set up your profile",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
+              // Header
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                child: Column(
+                  children: [
+                    SizedBox(height: topMargin),
+                    Row(
+                      children: [
+                        const BackButton(),
+                        SizedBox(width: screenWidth * 0.02),
+                        Expanded(
+                          child: Text(
+                            "Set up your profile",
+                            style: TextStyle(
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(width: 40), // Balance for BackButton
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      "It's quick and easy. You can edit this later.",
+                      style: TextStyle(
+                        fontSize: subtitleFontSize,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const Divider(color: Colors.grey, thickness: 1.0, height: 30.0),
+                  ],
                 ),
               ),
-              Container(
-                width: double.infinity,
-                child: const Text(
-                  "It's quick and easy. You can edit this later.",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const Divider(color: Colors.grey, thickness: 1.0, height: 30.0),
-
+              
+              // Form Content
               Expanded(
                 child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "What job are you looking for?", // تغيير النص
+                      // Job Section
+                      Text(
+                        "What job are you looking for?",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: sectionFontSize,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -245,131 +246,49 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          // الوظائف الأساسية
-                          ...jobTypes.map((job) {
-                            final isSelected =
-                                selectedJob ==
-                                job; // تغيير المنطق للاختيار الفردي
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (isSelected) {
-                                    selectedJob = null; // إلغاء الاختيار
-                                  } else {
-                                    selectedJob = job; // اختيار الوظيفة
-                                  }
-                                });
-                              },
-                              child: Card(
-                                color: isSelected
-                                    ? HexColor("#4F46E5")
-                                    : HexColor("#D9D9D9"),
-                                child: Container(
-                                  height: 30,
-                                  width: 90,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    job,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-
-                          // الوظائف المخصصة
-                          ...customJobs.map((job) {
-                            final isSelected =
-                                selectedJob ==
-                                job; // تغيير المنطق للاختيار الفردي
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  if (isSelected) {
-                                    selectedJob = null; // إلغاء الاختيار
-                                  } else {
-                                    selectedJob = job; // اختيار الوظيفة
-                                  }
-                                });
-                              },
-                              child: Card(
-                                color: isSelected
-                                    ? HexColor("#4F46E5")
-                                    : HexColor("#D9D9D9"),
-                                child: Container(
-                                  height: 30,
-                                  width: 90,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    job,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-
-                          // زر Add
-                          GestureDetector(
-                            onTap: _addNewJob, // تغيير الدالة
-                            child: Card(
-                              color: HexColor("#D9D9D9"),
-                              child: Container(
-                                height: 30,
-                                width: 70,
-                                alignment: Alignment.center,
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add,
-                                      color: Colors.black,
-                                      size: 14,
-                                    ),
-                                    SizedBox(width: 2),
-                                    Text(
-                                      "Add",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                          ...jobTypes.map((job) => _buildSelectionChip(
+                            label: job,
+                            isSelected: selectedJob == job,
+                            onTap: () {
+                              setState(() {
+                                if (selectedJob == job) {
+                                  selectedJob = null;
+                                } else {
+                                  selectedJob = job;
+                                }
+                              });
+                            },
+                            width: cardWidth,
+                          )),
+                          ...customJobs.map((job) => _buildSelectionChip(
+                            label: job,
+                            isSelected: selectedJob == job,
+                            onTap: () {
+                              setState(() {
+                                if (selectedJob == job) {
+                                  selectedJob = null;
+                                } else {
+                                  selectedJob = job;
+                                }
+                              });
+                            },
+                            width: cardWidth,
+                          )),
+                          _buildAddChip(
+                            onTap: _addNewJob,
+                            width: cardWidth,
+                            label: "Add",
                           ),
                         ],
                       ),
 
-                      const Divider(
-                        color: Colors.black,
-                        thickness: 0.5,
-                        height: 20,
-                      ),
+                      const Divider(color: Colors.black, thickness: 0.5, height: 20),
 
-                      const Text(
+                      // Availability Section
+                      Text(
                         "Availability",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: sectionFontSize,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -378,56 +297,34 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                         spacing: 6,
                         runSpacing: 6,
                         children: availabilityTypes.map((availability) {
-                          final isSelected = selectedAvailability.contains(
-                            availability,
-                          );
+                          final itemWidth = (screenWidth - 40 - 36) / (isSmallScreen ? 3 : 4);
                           return SizedBox(
-                            width: (screenWidth - 40 - 36) / 4,
-                            child: GestureDetector(
+                            width: itemWidth,
+                            child: _buildSelectionChip(
+                              label: availability,
+                              isSelected: selectedAvailability.contains(availability),
                               onTap: () {
                                 setState(() {
-                                  if (isSelected) {
+                                  if (selectedAvailability.contains(availability)) {
                                     selectedAvailability.remove(availability);
                                   } else {
                                     selectedAvailability.add(availability);
                                   }
                                 });
                               },
-                              child: Card(
-                                color: isSelected
-                                    ? HexColor("#4F46E5")
-                                    : HexColor("#D9D9D9"),
-                                child: Container(
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    availability,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
+                              width: itemWidth,
                             ),
                           );
                         }).toList(),
                       ),
 
-                      const Divider(
-                        color: Colors.black,
-                        thickness: 0.5,
-                        height: 20,
-                      ),
+                      const Divider(color: Colors.black, thickness: 0.5, height: 20),
 
-                      const Text(
+                      // Communication Skills Section
+                      Text(
                         "Communication Skills",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: sectionFontSize,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -436,136 +333,64 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                         spacing: 6,
                         runSpacing: 6,
                         children: [
-                          // اللغات الأساسية
                           ...Languages.map((language) {
-                            final isSelected = selectedLanguage.contains(
-                              language,
-                            );
+                            final itemWidth = (screenWidth - 40 - 36) / (isSmallScreen ? 3 : 4);
                             return SizedBox(
-                              width: (screenWidth - 40 - 36) / 4,
-                              child: GestureDetector(
+                              width: itemWidth,
+                              child: _buildSelectionChip(
+                                label: language,
+                                isSelected: selectedLanguage.contains(language),
                                 onTap: () {
                                   setState(() {
-                                    if (isSelected) {
+                                    if (selectedLanguage.contains(language)) {
                                       selectedLanguage.remove(language);
                                     } else {
                                       selectedLanguage.add(language);
                                     }
                                   });
                                 },
-                                child: Card(
-                                  color: isSelected
-                                      ? HexColor("#4F46E5")
-                                      : HexColor("#D9D9D9"),
-                                  child: Container(
-                                    height: 30,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      language,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                ),
+                                width: itemWidth,
                               ),
                             );
                           }).toList(),
-
                           ...customLanguages.map((language) {
-                            final isSelected = selectedLanguage.contains(
-                              language,
-                            );
+                            final itemWidth = (screenWidth - 40 - 36) / (isSmallScreen ? 3 : 4);
                             return SizedBox(
-                              width: (screenWidth - 40 - 36) / 4,
-                              child: GestureDetector(
+                              width: itemWidth,
+                              child: _buildSelectionChip(
+                                label: language,
+                                isSelected: selectedLanguage.contains(language),
                                 onTap: () {
                                   setState(() {
-                                    if (isSelected) {
+                                    if (selectedLanguage.contains(language)) {
                                       selectedLanguage.remove(language);
                                     } else {
                                       selectedLanguage.add(language);
                                     }
                                   });
                                 },
-                                child: Card(
-                                  color: isSelected
-                                      ? HexColor("#4F46E5")
-                                      : HexColor("#D9D9D9"),
-                                  child: Container(
-                                    height: 30,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      language,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : Colors.black,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                  ),
-                                ),
+                                width: itemWidth,
                               ),
                             );
                           }).toList(),
-
-                          // زر Add Language
                           SizedBox(
-                            width: (screenWidth - 40 - 36) / 4,
-                            child: GestureDetector(
+                            width: (screenWidth - 40 - 36) / (isSmallScreen ? 3 : 4),
+                            child: _buildAddChip(
                               onTap: _addNewLanguage,
-                              child: Card(
-                                color: HexColor("#D9D9D9"),
-                                child: Container(
-                                  height: 30,
-                                  alignment: Alignment.center,
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.add,
-                                        color: Colors.black,
-                                        size: 12,
-                                      ),
-                                      SizedBox(width: 2),
-                                      Text(
-                                        "Add",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                              width: (screenWidth - 40 - 36) / (isSmallScreen ? 3 : 4),
+                              label: "Add",
                             ),
                           ),
                         ],
                       ),
 
-                      const Divider(
-                        color: Colors.black,
-                        thickness: 0.5,
-                        height: 20,
-                      ),
+                      const Divider(color: Colors.black, thickness: 0.5, height: 20),
 
-                      const Text(
+                      // Bio Section
+                      Text(
                         "Short Bio",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: sectionFontSize,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -582,10 +407,10 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                           maxLines: 5,
                           minLines: 3,
                           decoration: InputDecoration(
-                            hintText: 'tell us more about yourself...',
+                            hintText: 'Tell us more about yourself...',
                             hintStyle: TextStyle(
-                              color: Color(0xFF9CA3AF),
-                              fontSize: 14,
+                              color: const Color(0xFF9CA3AF),
+                              fontSize: subtitleFontSize,
                             ),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
@@ -601,10 +426,10 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           SizedBox(
-                            width: 130,
+                            width: buttonWidth,
                             child: Container(
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [
                                     Color.fromRGBO(79, 70, 229, 1),
                                     Color.fromRGBO(131, 125, 225, 1),
@@ -618,25 +443,19 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                               child: ElevatedButton(
                                 onPressed: () {
                                   if (_validateInputs()) {
-                                    final workerProvider =
-                                        Provider.of<WorkerProvider>(
-                                          context,
-                                          listen: false,
-                                        );
+                                    final workerProvider = Provider.of<WorkerProvider>(
+                                      context,
+                                      listen: false,
+                                    );
 
-                                    final existingData =
-                                        workerProvider.workerData;
+                                    final existingData = workerProvider.workerData;
 
                                     if (existingData != null) {
-                                      // تحديث البيانات الموجودة
                                       workerProvider.updateProfile(
                                         selectedJob: selectedJob!,
-                                        selectedSkills: existingData
-                                            .selectedSkills, // الاحتفاظ بالمهارات الموجودة
-                                        selectedAvailability:
-                                            selectedAvailability.toList(),
-                                        selectedLanguages: selectedLanguage
-                                            .toList(),
+                                        selectedSkills: existingData.selectedSkills,
+                                        selectedAvailability: selectedAvailability.toList(),
+                                        selectedLanguages: selectedLanguage.toList(),
                                         customJobs: customJobs,
                                         customLanguages: customLanguages,
                                         bio: _bioController.text,
@@ -646,34 +465,27 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                                         education: existingData.education,
                                         experience: existingData.experience,
                                         projects: existingData.projects,
-                                        coverImagePath:
-                                            existingData.coverImagePath,
-                                        profileImagePath:
-                                            existingData.profileImagePath,
+                                        coverImagePath: existingData.coverImagePath,
+                                        profileImagePath: existingData.profileImagePath,
                                       );
                                     } else {
-                                      // إنشاء بيانات جديدة
                                       workerProvider.createProfile(
                                         selectedJob: selectedJob!,
-                                        selectedSkills:
-                                            [], // قائمة فارغة للمهارات
-                                        selectedAvailability:
-                                            selectedAvailability.toList(),
-                                        selectedLanguages: selectedLanguage
-                                            .toList(),
+                                        selectedSkills: [],
+                                        selectedAvailability: selectedAvailability.toList(),
+                                        selectedLanguages: selectedLanguage.toList(),
                                         customJobs: customJobs,
                                         customLanguages: customLanguages,
                                         bio: _bioController.text,
-                                        fullName: '', // سيتم تعبئتها لاحقاً
-                                        email: '', // سيتم تعبئتها لاحقاً
+                                        fullName: '',
+                                        email: '',
                                       );
                                     }
 
                                     Navigator.pushReplacement(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) =>
-                                            const ProfileWorker(),
+                                        builder: (context) => const ProfileWorker(),
                                       ),
                                     );
                                   }
@@ -681,9 +493,7 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
-                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
@@ -701,7 +511,6 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 20),
                     ],
                   ),
@@ -709,6 +518,72 @@ class _WorkerProfileSetState extends State<WorkerProfileSet> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectionChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required double width,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: 30,
+        decoration: BoxDecoration(
+          color: isSelected ? HexColor("#4F46E5") : HexColor("#D9D9D9"),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: isSelected ? Colors.white : Colors.black,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddChip({
+    required VoidCallback onTap,
+    required double width,
+    required String label,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: 30,
+        decoration: BoxDecoration(
+          color: HexColor("#D9D9D9"),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, color: Colors.black, size: 14),
+            const SizedBox(width: 2),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+          ],
         ),
       ),
     );

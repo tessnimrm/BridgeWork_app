@@ -4,7 +4,7 @@ import '../widgets/button.dart';
 import '../widgets/background.dart';
 import 'login_page.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../CompanyScreen/main_pagehire.dart';
+import '../guestScreen/guestwork.dart';
 
 class Realone extends StatelessWidget {
   const Realone({super.key});
@@ -30,7 +30,7 @@ class Realone extends StatelessWidget {
                     'lib/images/3022e377fdbaa43092e09875017df8743cf60e4c.png',
                     fit: BoxFit.contain,
                     height:
-                        250, // optional: fix height so layout is predictable
+                        250, 
                   ),
                   const SizedBox(height: 30),
                   Botton(
@@ -60,12 +60,12 @@ class Realone extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 50),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Hire()),
+                        MaterialPageRoute(builder: (context) => const Workg()),
                       );
                     },
                     child: Text(

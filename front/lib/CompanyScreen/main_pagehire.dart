@@ -1,5 +1,3 @@
-// CompanyScreen/main_pagehire.dart
-import 'package:brigdeWork_app/WorkerScreen/main_pagework.dart';
 import 'package:flutter/material.dart';
 import '../widgets/background.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -109,6 +107,7 @@ class _HireState extends State<Hire> {
       body: Stack(
         children: [
           SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 120),
             child: SafeArea(
               child: ConstrainedBox(
                 constraints: BoxConstraints(
@@ -215,7 +214,7 @@ class _HireState extends State<Hire> {
                             ),
                             const Categories(
                               text: "Hospitality",
-                              imagePath: "lib/images/hospitality.png",
+                              imagePath: "lib/images/hospitalityy.png",
                             ),
                             const Categories(
                               text: "Tech&Digital",
@@ -242,7 +241,6 @@ class _HireState extends State<Hire> {
                           final isLiked = likedProvider.isLiked(workerJob);
                           final requestStatus = requestsProvider
                               .getRequestStatus(job['title'] as String);
-
                           return Cards(
                             textt: job['title'] as String,
                             avatar: NetworkImage(job['profileImage'] as String),
@@ -282,42 +280,7 @@ class _HireState extends State<Hire> {
                           );
                         }).toList(),
                       ),
-                      const SizedBox(height: 100),
                     ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Work()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 114, 110, 202),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 60,
-                    vertical: 15,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 10,
-                ),
-                child: const Text(
-                  "Switch to Work mode",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
                   ),
                 ),
               ),

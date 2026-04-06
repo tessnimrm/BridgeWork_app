@@ -1,13 +1,13 @@
-import 'package:brigdeWork_app/shared_pages/login_page.dart';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/background.dart';
 import '../widgets/input.dart';
 import '../widgets/button.dart';
 import '../widgets/simplebutton.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:brigdeWork_app/shared_pages/choicepage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
+import '../services/auth.service.dart';
+import 'login_page.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -17,13 +17,16 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  TextEditingController fullNameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
   @override
   void dispose() {
     fullNameController.dispose();
+    usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
@@ -34,78 +37,90 @@ class _SignupState extends State<Signup> {
     return emailRegex.hasMatch(email);
   }
 
+  void _showSnackBar(String message, {bool isError = true}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+  }
+
   bool _validateInputs() {
     if (fullNameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your full name'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      );
+      _showSnackBar('Please enter your full name');
       return false;
     }
-
+    if (usernameController.text.trim().isEmpty) {
+      _showSnackBar('Please enter a username');
+      return false;
+    }
     if (emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your email'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      );
+      _showSnackBar('Please enter your email');
       return false;
     }
-
     if (!_isValidEmail(emailController.text.trim())) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid email address'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      );
+      _showSnackBar('Please enter a valid email address');
       return false;
     }
-
     if (passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your password'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      );
+      _showSnackBar('Please enter your password');
       return false;
     }
-
     if (passwordController.text.trim().length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password must be at least 6 characters'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-        ),
-      );
+      _showSnackBar('Password must be at least 6 characters');
       return false;
     }
-
     return true;
+  }
+
+  Future<void> _handleSignup() async {
+    if (!_validateInputs()) return;
+    
+    setState(() => isLoading = true);
+    
+    try {
+      final authService = AuthService();
+      await authService.signup(
+        email: emailController.text.trim(),
+        username: usernameController.text.trim(),
+        password: passwordController.text.trim(),
+        fullname: fullNameController.text.trim(),
+      );
+      
+      // Save user data to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('fullName', fullNameController.text.trim());
+      await prefs.setString('email', emailController.text.trim());
+      await prefs.setString('username', usernameController.text.trim());
+      
+      _showSnackBar('Account created successfully! Please login.', isError: false);
+      
+      if (mounted) {
+        // Clear controllers
+        fullNameController.clear();
+        usernameController.clear();
+        emailController.clear();
+        passwordController.clear();
+        
+        // Navigate to login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const Login(),
+          ),
+        );
+      }
+    } catch (e) {
+      _showSnackBar(e.toString().replaceAll('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   @override
@@ -117,7 +132,6 @@ class _SignupState extends State<Signup> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                physics: const NeverScrollableScrollPhysics(),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
@@ -153,7 +167,7 @@ class _SignupState extends State<Signup> {
                                   style: GoogleFonts.inter(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: Color.fromRGBO(144, 141, 141, 1),
+                                    color: const Color.fromRGBO(144, 141, 141, 1),
                                   ),
                                 ),
                               ],
@@ -171,6 +185,12 @@ class _SignupState extends State<Signup> {
                             ),
                             const SizedBox(height: 10),
                             Input(
+                              text: "Username",
+                              obscureText: false,
+                              controller: usernameController,
+                            ),
+                            const SizedBox(height: 10),
+                            Input(
                               text: "Email",
                               obscureText: false,
                               controller: emailController,
@@ -184,40 +204,15 @@ class _SignupState extends State<Signup> {
                             ),
                             const SizedBox(height: 50),
                             Botton(
-                              text: "Create account",
-                              onPressed: () async {
-                                if (_validateInputs()) {
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setString(
-                                    'fullName',
-                                    fullNameController.text.trim(),
-                                  );
-                                  await prefs.setString(
-                                    'email',
-                                    emailController.text.trim(),
-                                  );
-
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Choicepage(),
-                                    ),
-                                  );
-                                }
-                              },
-                              textColor: const Color.fromARGB(
-                                255,
-                                255,
-                                255,
-                                255,
-                              ),
+                              text: isLoading ? "Creating account..." : "Create account",
+                              onPressed: isLoading ? null : _handleSignup,
+                              textColor: Colors.white,
                             ),
                             const SizedBox(height: 40),
-                            SizedBox(
+                            const SizedBox(
                               width: 345,
                               child: Divider(
-                                color: const Color.fromARGB(255, 106, 103, 103),
+                                color: Color.fromARGB(255, 106, 103, 103),
                                 thickness: 2,
                               ),
                             ),
@@ -230,7 +225,7 @@ class _SignupState extends State<Signup> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                SizedBox(
+                                const SizedBox(
                                   width: 154,
                                   child: Divider(
                                     color: Color.fromARGB(255, 96, 95, 95),
@@ -243,11 +238,11 @@ class _SignupState extends State<Signup> {
                                   style: GoogleFonts.inter(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w400,
-                                    color: Color.fromARGB(255, 78, 77, 77),
+                                    color: const Color.fromARGB(255, 78, 77, 77),
                                   ),
                                 ),
                                 const SizedBox(width: 5),
-                                SizedBox(
+                                const SizedBox(
                                   width: 154,
                                   child: Divider(
                                     color: Color.fromARGB(255, 95, 93, 93),
@@ -261,14 +256,9 @@ class _SignupState extends State<Signup> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  "Already have an account ?",
+                                  "Already have an account?",
                                   style: GoogleFonts.inter(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      91,
-                                      89,
-                                      89,
-                                    ),
+                                    color: const Color.fromARGB(255, 91, 89, 89),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -285,7 +275,7 @@ class _SignupState extends State<Signup> {
                                   child: Text(
                                     " Log in",
                                     style: GoogleFonts.inter(
-                                      color: Color.fromRGBO(79, 70, 229, 100),
+                                      color: const Color.fromRGBO(79, 70, 229, 100),
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
