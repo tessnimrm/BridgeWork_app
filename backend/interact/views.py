@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
+from profiles.serializers import WorkerProfileSerializer,EmployerProfileSerializer  
 from .models import Interested, Favorite
 from .serializers import InterestedSerializer, FavoriteSerializer
 from users.models import User
@@ -143,4 +145,64 @@ def list_favorites(request):
     favorites  = Favorite.objects.filter(user=request.user)
     serializer = FavoriteSerializer(favorites, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def home_feed(request):
+    user     = request.user
+    category = request.query_params.get('category', None)
+    search   = request.query_params.get('search', None)
+
+    if not user.role:
+        return Response(
+            {'error': 'Please set your role first'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if not category:
+        if user.categories:
+            category = user.categories[0]  
+        else:
+            category = 'Tech&Digital'  # default
+
+    valid_categories = ['Tech&Digital', 'Retail', 'Hospitality', 'Education', 'Cooking', 'Delivery']
+    if category not in valid_categories:
+        return Response(
+            {'error': f'Category must be one of: {valid_categories}'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    
+    if user.role == 'jobseeker':
+        profiles = EmployerProfileSerializer.objects.filter(
+            category__icontains=category
+        )
+        if search:
+            profiles = profiles.filter(
+                company_name__icontains=search
+            ) | profiles.filter(
+                about_company__icontains=search
+            )
+        serializer = EmployerProfileSerializer(profiles, many=True)
+
+    # employer → يشوف jobseekers
+    elif user.role == 'employer':
+        profiles = WorkerProfileSerializer.objects.filter(
+            category__icontains=category
+        )
+        if search:
+            profiles = profiles.filter(
+                user__fullname__icontains=search
+            ) | profiles.filter(
+                bio__icontains=search
+            )
+        serializer = WorkerProfileSerializer(profiles, many=True)
+
+    return Response({
+        'category'          : category,
+        'your_categories'   : user.categories,
+        'results'           : serializer.data
+    }, status=status.HTTP_200_OK)
 

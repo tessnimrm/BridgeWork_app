@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
-from .serializers import LoginSerializer, RegisterSerializer, SetRoleSerializer, UserSerializer,ChangePasswordSerializer
+from .serializers import LoginSerializer, RegisterSerializer, SetRoleSerializer, UserSerializer,ChangePasswordSerializer,SetCategoriesSerializer
 from .models import User
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
@@ -110,16 +110,15 @@ def change_password(request):
     serializer = ChangePasswordSerializer(data=data)
 
     if serializer.is_valid():
-        user = request.user
-
-        # 1. check old password
-        if not user.check_password(data['old_password']):
+        # 1. check passwords match
+        if data['new_password'] != data['confirm_password']:
             return Response(
-                {'error': 'Old password is wrong'},
+                {'error': 'Passwords do not match'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         # 2. set new password
+        user = request.user
         user.set_password(data['new_password'])
         user.save()
 
@@ -148,52 +147,19 @@ def setRole(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['GET'])
-def guest_access(request):
-    return Response({
-        'details': 'Welcome as guest 👋',
-    }, status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
-def guest_set_role(request):
-    role = request.data.get('role', None)
+@permission_classes([IsAuthenticated])
+def set_categories(request):
+    serializer = SetCategoriesSerializer(data=request.data)
 
-    if not role:
-        return Response(
-            {'error': 'Please choose work or hire'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    if serializer.is_valid():
+        user = request.user
+        user.categories = serializer.validated_data['categories']
+        user.save()
+        return Response({
+            'details'   : 'Categories saved ✅',
+            'categories': user.categories
+        }, status=status.HTTP_200_OK)
 
-    if role not in ['jobseeker', 'employer']:
-        return Response(
-            {'error': 'Role must be jobseeker or employer'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response({
-        'details': f'Role set to {role} ✅',
-        'role'   : role,
-        'note'   : 'Register to use Interested, Favorite and Chat',
-    }, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def guest_home(request):
-    role     = request.query_params.get('role', None)
-    category = request.query_params.get('category', None)
-    search   = request.query_params.get('search', None)
-
-    if not role:
-        return Response(
-            {'error': 'Please set your role first'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # i need to change it to filter by category and search
-    return Response({
-        'details': f'Browsing as guest ({role}) 👋',
-        'role'   : role,
-        'note'   : 'Register to use Interested, Favorite and Chat',
-    }, status=status.HTTP_200_OK)
