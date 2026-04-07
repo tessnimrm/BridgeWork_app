@@ -1,4 +1,4 @@
-package com.example.BrigdeWork_app
+package com.example.brigdework_app
 
 import io.flutter.embedding.android.FlutterActivity
 
