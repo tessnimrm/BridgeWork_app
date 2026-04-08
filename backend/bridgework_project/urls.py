@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/interact/', include('interact.urls')),
     path('api/', include('chat.urls')),
     path('api/', include('profile.urls')),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+]
+urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+#so django will access the uploded files and show them
 
