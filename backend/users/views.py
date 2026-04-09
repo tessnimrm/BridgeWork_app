@@ -110,16 +110,15 @@ def change_password(request):
     serializer = ChangePasswordSerializer(data=data)
 
     if serializer.is_valid():
-        user = request.user
-
-        # 1. check old password
-        if not user.check_password(data['old_password']):
+        # 1. check passwords match
+        if data['new_password'] != data['confirm_password']:
             return Response(
-                {'error': 'Old password is wrong'},
+                {'error': 'Passwords do not match'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         # 2. set new password
+        user = request.user
         user.set_password(data['new_password'])
         user.save()
 
@@ -129,7 +128,6 @@ def change_password(request):
         )
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @api_view(['POST'])
@@ -148,52 +146,56 @@ def setRole(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['GET'])
-def guest_access(request):
-    return Response({
-        'details': 'Welcome as guest 👋',
-    }, status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
-def guest_set_role(request):
-    role = request.data.get('role', None)
+def google_login(request):
+    token = request.data.get('token')
 
-    if not role:
+    if not token:
         return Response(
-            {'error': 'Please choose work or hire'},
+            {'error': 'Token is required'},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    if role not in ['jobseeker', 'employer']:
-        return Response(
-            {'error': 'Role must be jobseeker or employer'},
-            status=status.HTTP_400_BAD_REQUEST
+    try:
+        # 1. verify google token
+        google_info = id_token.verify_oauth2_token(
+            token,
+            google_requests.Request(),
+            settings.GOOGLE_CLIENT_ID
         )
 
-    return Response({
-        'details': f'Role set to {role} ✅',
-        'role'   : role,
-        'note'   : 'Register to use Interested, Favorite and Chat',
-    }, status=status.HTTP_200_OK)
+        email    = google_info['email']
+        fullname = google_info.get('name', '')
 
-
-@api_view(['GET'])
-def guest_home(request):
-    role     = request.query_params.get('role', None)
-    category = request.query_params.get('category', None)
-    search   = request.query_params.get('search', None)
-
-    if not role:
-        return Response(
-            {'error': 'Please set your role first'},
-            status=status.HTTP_400_BAD_REQUEST
+        # 2. get or create user
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': email.split('@')[0],
+                'fullname': fullname,
+            }
         )
 
-    # i need to change it to filter by category and search
-    return Response({
-        'details': f'Browsing as guest ({role}) 👋',
-        'role'   : role,
-        'note'   : 'Register to use Interested, Favorite and Chat',
-    }, status=status.HTTP_200_OK)
+        # 3. generate token
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'details' : 'Google login successful ✅',
+            'token'   : str(refresh.access_token),
+            'refresh' : str(refresh),
+            'created' : created,  # True = new user, False = existing user
+            'user'    : {
+                'id'      : user.id,
+                'email'   : user.email,
+                'username': user.username,
+                'fullname': user.fullname,
+                'role'    : user.role,
+            }
+        }, status=status.HTTP_200_OK)
+
+    except ValueError:
+        return Response(
+            {'error': 'Invalid Google token'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+  
+
