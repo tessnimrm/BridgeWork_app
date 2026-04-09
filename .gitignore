@@ -41,9 +41,14 @@ web/manifest.json
 *.so
 
 
+<<<<<<< HEAD
 
 # Byte-compiled / optimized / DLL files
 **/__pycache__/
+=======
+# Byte-compiled / optimized / DLL files
+__pycache__/
+>>>>>>> 21880e481dc046f97d7a9fb5250413baff696688
 *.py[cod]
 *$py.class
 
@@ -102,8 +107,13 @@ cover/
 # Django stuff:
 *.log
 local_settings.py
+<<<<<<< HEAD
 backend/db.sqlite3
 backend/db.sqlite3-journal
+=======
+db.sqlite3
+db.sqlite3-journal
+>>>>>>> 21880e481dc046f97d7a9fb5250413baff696688
 
 # Flask stuff:
 instance/
@@ -222,4 +232,10 @@ cython_debug/
 #  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
+<<<<<<< HEAD
 .cursorindexingignore
+=======
+.cursorindexingignore
+
+
+>>>>>>> 21880e481dc046f97d7a9fb5250413baff696688

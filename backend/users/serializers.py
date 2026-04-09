@@ -43,9 +43,21 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(required=True)
+    old_password = serializers.CharField(required=True,min_length=6)
     new_password = serializers.CharField(required=True, min_length=6)
 
 
 class SetRoleSerializer(serializers.Serializer):
     role = serializers.ChoiceField(choices=['jobseeker', 'employer'])
+
+class SetCategoriesSerializer(serializers.Serializer):
+    categories = serializers.ListField(
+        child=serializers.ChoiceField(choices=[
+            'Tech&Digital',
+            'Retail',
+            'Hospitality',
+            'Education',
+            'Cooking',
+        ]),
+        min_length=1
+    )

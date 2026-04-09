@@ -10,8 +10,8 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/users/token/', TokenObtainPairView.as_view()),
     path('api/interact/', include('interact.urls')),
-    path('api/chat/', include('chat.urls')),
-    path('api/profiles/', include('profiles.urls')),
+    path('api/', include('chat.urls')),
+    path('api/', include('profile.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

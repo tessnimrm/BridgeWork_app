@@ -7,4 +7,3 @@ urlpatterns = [
     path("switch-mode/",views.switch_mode),
     path("profile/<int:id>/",views.view_profile),
 ]
-

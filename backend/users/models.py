@@ -13,6 +13,7 @@ class User(AbstractUser):
     #phone  = models.CharField(max_length=20, blank=True)
     role   = models.CharField(max_length=20, choices=ROLE_CHOICES)
    # avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    categories = models.JSONField(default=list)
 
     USERNAME_FIELD  = 'email'       # login with email not username
     REQUIRED_FIELDS = ['username']
