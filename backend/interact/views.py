@@ -147,3 +147,52 @@ def list_favorites(request):
     serializer = FavoriteSerializer(favorites, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def home_feed(request):
+    user = request.user
+    search = request.query_params.get('search', None)
+    default_category = None
+    
+    if user.role == 'jobseeker':
+        profile = getattr(user, 'worker_profile', None) 
+        if profile:
+            default_category = profile.category
+            
+    elif user.role == 'employer':
+        profile = getattr(user, 'employer_profile', None) 
+        if profile:
+            default_category = profile.category
+
+   
+    category = request.query_params.get('category', default_category)
+
+    if not category:
+        return Response(
+            {'error': 'No category selected or found in your profile.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if user.role == 'jobseeker':
+        profiles = EmployerProfile.objects.filter(category=category)
+        if search:
+            profiles = profiles.filter(
+                Q(company_name__icontains=search) | Q(about_company__icontains=search)
+            )
+        serializer = EmployerProfileSerializer(profiles, many=True)
+
+    elif user.role == 'employer':
+        profiles = WorkerProfile.objects.filter(category=category)
+        if search:
+            profiles = profiles.filter(
+                Q(user__fullname__icontains=search) | Q(bio__icontains=search)
+            )
+        serializer = WorkerProfileSerializer(profiles, many=True)
+    
+    else:
+        return Response({'error': 'Please set your role first'}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({
+        'current_category': category,
+        'results': serializer.data
+    }, status=status.HTTP_200_OK)
