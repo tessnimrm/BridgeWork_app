@@ -7,6 +7,9 @@ from .models import User
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
+from django.conf import settings
 
 @api_view(['POST'])
 def register(request):

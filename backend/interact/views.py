@@ -5,6 +5,9 @@ from rest_framework import status
 from .models import Interested, Favorite
 from .serializers import InterestedSerializer, FavoriteSerializer
 from users.models import User
+from profiles.models import WorkerProfile, EmployerProfile
+from profiles.serializers import WorkerProfileSerializer, EmployerProfileSerializer
+from django.db.models import Q
 
 
 
