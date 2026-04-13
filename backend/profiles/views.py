@@ -39,7 +39,7 @@ def employer_profile(request):
        
 #switch mode
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticate])
 def switch_mode(request):
     mode = request.data.get("mode") # Get the mode sent from front
 
