@@ -39,15 +39,24 @@ def employer_profile(request):
        
 #switch mode
 @api_view(["POST"])
-@permission_classes([IsAuthenticate])
+@permission_classes([IsAuthenticated])
 def switch_mode(request):
-   mode = request.data.get("mode")
-   if  mode == "worker":
-      WorkerProfile.objectsget_or_create( user=request.user)
-   if mode == "employer":
-       EmployerProfile.objectsget_or_create( user=request.user)
-   return Response({"message":"Mode Switched"})
+    mode = request.data.get("mode") # Get the mode sent from front
 
+    if mode == "jobseeker":
+        WorkerProfile.objects.get_or_create(user=request.user) #get or create the profile
+
+    elif mode == "employer":
+        EmployerProfile.objects.get_or_create(user=request.user)#get or create the profile
+
+    else:
+        return Response({"error": "Invalid mode"}, status=400) # if not error
+
+    # Save role in user
+    request.user.role = mode
+    request.user.save()
+
+    return Response({"message": f"Switched to {mode}"})
 #view someone profile
 @api_view(["GET"])    
 def view_profile(request,id):
